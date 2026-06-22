@@ -37,7 +37,19 @@ export default function App() {
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-          <Toaster position="top-left" />
+          <Toaster
+            position="top-left"
+            toastOptions={{
+              style: {
+                background: '#1a1f2e',
+                color: '#f5ede6',
+                border: '1px solid #2a3050',
+                borderRadius: '8px',
+                fontFamily: '"DM Sans", sans-serif',
+                fontSize: '14px',
+              },
+            }}
+          />
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>

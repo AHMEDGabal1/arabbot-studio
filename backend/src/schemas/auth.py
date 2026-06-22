@@ -5,6 +5,7 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
     name: str
+    phone: str | None = None
 
 
 class LoginRequest(BaseModel):

@@ -1,12 +1,127 @@
 @import "tailwindcss";
 
+@theme {
+  --color-navy-900: #0f1219;
+  --color-navy-800: #161b26;
+  --color-navy-700: #1a1f2e;
+  --color-navy-600: #222840;
+  --color-navy-500: #2a3050;
+  --color-navy-400: #4a5278;
+  --color-terracotta-500: #c1694f;
+  --color-terracotta-400: #d4836a;
+  --color-terracotta-300: #e09d87;
+  --color-terracotta-600: #a8533a;
+  --color-terracotta-700: #8a3f2a;
+  --color-terracotta-50: #fdf2ed;
+  --color-sand-50: #faf5f0;
+  --color-sand-100: #f5ede6;
+  --color-sand-200: #ede0d4;
+  --color-sand-300: #e0cfbf;
+  --color-gold-400: #e9b741;
+  --color-gold-500: #d4a132;
+  --color-gold-600: #b8891e;
+  --color-ash-50: #f8f7f6;
+  --color-ash-100: #efedeb;
+  --color-ash-200: #dfdbd7;
+  --color-ash-300: #b8b1ab;
+  --color-ash-400: #8a8079;
+  --color-ash-500: #6b6360;
+  --color-ash-600: #524b48;
+  --color-bg-warm: #faf5f0;
+  --color-bg-card: #ffffff;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "DM Sans", sans-serif;
+}
+
 :root {
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --sidebar-width: 260px;
+  --sidebar-width: 280px;
 }
 
 body {
-  @apply bg-gray-50 text-gray-900 antialiased;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
+  background-color: var(--color-bg-warm);
+  color: var(--color-navy-900);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.noise-overlay::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+.diagonal-cut {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+}
+
+.diagonal-cut-lg {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%);
+}
+
+.grain-bg {
+  position: relative;
+}
+
+.grain-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.025;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.4s ease-out both;
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out both;
+}
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+.stagger-7 { animation-delay: 0.35s; }
+.stagger-8 { animation-delay: 0.4s; }
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-ash-200);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ash-300);
 }

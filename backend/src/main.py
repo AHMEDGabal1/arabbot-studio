@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 from src.database import get_db
+from src.middleware.workspace import workspace_middleware
 from src.routers import analytics, auth, bots, conversations, handoffs, knowledge
 from src.webhooks import whatsapp
 
@@ -29,6 +30,9 @@ async def add_request_id(request: Request, call_next):
     response = await call_next(request)
     response.headers["X-Request-ID"] = request_id
     return response
+
+
+app.middleware("http")(workspace_middleware)
 
 
 app.include_router(auth.router, prefix="/api/v1")

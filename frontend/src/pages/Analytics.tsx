@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import { getAnalytics, listBots } from '../lib/api';
+import { getAnalyticsOverview, getBotAnalytics, listBots } from '../lib/api';
 import type { Analytics as AnalyticsType, Bot } from '../types';
 
-const COLORS = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6366f1'];
+const COLORS = ['#c1694f', '#e9b741', '#2a3050', '#6b6360', '#d4836a', '#b8891e', '#4a5278', '#8a8079', '#e09d87'];
 
 export default function Analytics() {
   const [bots, setBots] = useState<Bot[]>([]);
@@ -19,14 +19,17 @@ export default function Analytics() {
 
   useEffect(() => {
     (async () => {
-      try { setData(await getAnalytics(selectedBot || undefined)); } catch {}
+      try {
+        const result = selectedBot ? await getBotAnalytics(selectedBot) : await getAnalyticsOverview();
+        setData(result);
+      } catch {}
     })();
   }, [selectedBot]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-ash-300 border-t-terracotta-500 rounded-full animate-spin" />
       </div>
     );
   }
@@ -42,12 +45,15 @@ export default function Analytics() {
   ];
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
+    <div className="animate-fade-up">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="font-display text-3xl font-semibold text-navy-900">Analytics</h1>
+          <p className="font-body text-sm text-ash-500 mt-1">Track bot performance and usage</p>
+        </div>
         <select
           value={selectedBot} onChange={(e) => setSelectedBot(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
+          className="px-4 py-2.5 bg-bg-card border border-sand-200 rounded-lg focus:border-terracotta-400 focus:ring-1 focus:ring-terracotta-400/30 outline-none font-body text-sm text-navy-900"
         >
           <option value="">All bots</option>
           {bots.map((bot) => (
@@ -57,33 +63,42 @@ export default function Analytics() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        {overviewCards.map(({ label, value }) => (
-          <div key={label} className="bg-white rounded-xl border border-gray-200 p-5">
-            <p className="text-sm text-gray-500">{label}</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">{value}</p>
+        {overviewCards.map(({ label, value }, i) => (
+          <div key={label} className="relative bg-bg-card rounded-lg border border-sand-200 p-5 overflow-hidden animate-fade-up" style={{ animationDelay: `${i * 0.08}s` }}>
+            <div className="absolute -top-6 -right-6 w-16 h-16 bg-terracotta-500/5 rounded-full" />
+            <p className="font-body text-xs font-medium text-ash-400 tracking-wider uppercase">{label}</p>
+            <p className="font-display text-3xl font-semibold text-navy-900 mt-1.5">{value}</p>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {data?.messages_over_time && data.messages_over_time.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Messages Over Time</h2>
+          <div className="bg-bg-card rounded-lg border border-sand-200 p-6">
+            <h2 className="font-display text-base font-semibold text-navy-900 mb-4">Messages Over Time</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={data.messages_over_time}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Bar dataKey="count" fill="#2563eb" radius={[4, 4, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#dfdbd7" />
+                <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#8a8079' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#8a8079' }} />
+                <Tooltip
+                  contentStyle={{
+                    background: '#1a1f2e',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#f5ede6',
+                    fontSize: '13px',
+                  }}
+                />
+                <Bar dataKey="count" fill="#c1694f" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         )}
 
         {intentData.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Intent Distribution</h2>
+          <div className="bg-bg-card rounded-lg border border-sand-200 p-6">
+            <h2 className="font-display text-base font-semibold text-navy-900 mb-4">Intent Distribution</h2>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie data={intentData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
@@ -91,8 +106,20 @@ export default function Analytics() {
                     <Cell key={i} fill={COLORS[i % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
-                <Legend />
+                <Tooltip
+                  contentStyle={{
+                    background: '#1a1f2e',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#f5ede6',
+                    fontSize: '13px',
+                  }}
+                />
+                <Legend
+                  formatter={(value: string) => (
+                    <span style={{ color: '#6b6360', fontSize: '12px' }}>{value}</span>
+                  )}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>

@@ -57,23 +57,20 @@ async def list_conversations(
     limit: int = 50,
     offset: int = 0,
 ) -> tuple[list[Conversation], int]:
-    query = select(Conversation).join(Bot).where(
+    base_where = (
         Bot.workspace_id == uuid.UUID(workspace_id),
         Conversation.deleted_at.is_(None),
     )
-    count_query = select(func.count(Conversation.id)).join(Bot).where(
-        Bot.workspace_id == uuid.UUID(workspace_id),
-        Conversation.deleted_at.is_(None),
-    )
-
     if bot_id:
-        query = query.where(Conversation.bot_id == uuid.UUID(bot_id))
-        count_query = count_query.where(Conversation.bot_id == uuid.UUID(bot_id))
+        base_where += (Conversation.bot_id == uuid.UUID(bot_id),)
     if status:
-        query = query.where(Conversation.status == status)
-        count_query = count_query.where(Conversation.status == status)
+        base_where += (Conversation.status == status,)
 
-    query = query.order_by(Conversation.last_message_at.desc().nullslast()).offset(offset).limit(limit)
+    query = select(Conversation).join(Bot).where(*base_where).order_by(
+        Conversation.last_message_at.desc().nullslast()
+    ).offset(offset).limit(limit)
+
+    count_query = select(func.count(Conversation.id)).join(Bot).where(*base_where)
 
     result = await db.execute(query)
     items = list(result.scalars().all())

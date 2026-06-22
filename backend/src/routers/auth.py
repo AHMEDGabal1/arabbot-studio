@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import bcrypt
 from fastapi import APIRouter, Depends, HTTPException, status
-from jose import jwt
+from jose import JWTError, jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -33,6 +33,7 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
     user = User(
         email=body.email,
+        phone=body.phone,
         password_hash=bcrypt.hashpw(body.password.encode(), bcrypt.gensalt()).decode(),
     )
     db.add(user)
@@ -76,7 +77,7 @@ async def refresh(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
         workspace_id = payload.get("workspace_id")
         if not user_id or not workspace_id:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-    except Exception:
+    except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
     result = await db.execute(select(User).where(User.id == user_id))

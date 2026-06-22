@@ -26,8 +26,8 @@ export async function login(email: string, password: string) {
   return data;
 }
 
-export async function register(email: string, password: string, phone?: string) {
-  const { data } = await api.post('/auth/register', { email, password, phone });
+export async function register(email: string, password: string, name: string, phone?: string) {
+  const { data } = await api.post('/auth/register', { email, password, name, phone });
   localStorage.setItem('token', data.access_token);
   return data;
 }
@@ -53,7 +53,7 @@ export async function createBot(body: BotCreate): Promise<Bot> {
 }
 
 export async function updateBot(id: string, body: Partial<BotCreate>): Promise<Bot> {
-  const { data } = await api.put(`/bots/${id}`, body);
+  const { data } = await api.patch(`/bots/${id}`, body);
   return data;
 }
 
@@ -86,8 +86,8 @@ export async function deleteKnowledge(botId: string, itemId: string): Promise<vo
 }
 
 export async function listConversations(botId: string): Promise<Conversation[]> {
-  const { data } = await api.get(`/bots/${botId}/conversations`);
-  return data;
+  const { data } = await api.get('/conversations', { params: { bot_id: botId } });
+  return data.items ?? data;
 }
 
 export async function getConversationMessages(conversationId: string): Promise<Message[]> {
@@ -101,11 +101,17 @@ export async function listHandoffs(): Promise<Handoff[]> {
 }
 
 export async function resolveHandoff(id: string): Promise<void> {
-  await api.post(`/handoffs/${id}/resolve`);
+  await api.patch(`/handoffs/${id}/resolve`);
 }
 
-export async function getAnalytics(botId?: string): Promise<Analytics> {
-  const params = botId ? { bot_id: botId } : {};
-  const { data } = await api.get('/analytics', { params });
+export async function getAnalyticsOverview(): Promise<Analytics> {
+  const { data } = await api.get('/analytics/overview');
   return data;
 }
+
+export async function getBotAnalytics(botId: string): Promise<Analytics> {
+  const { data } = await api.get(`/analytics/bots/${botId}`);
+  return data;
+}
+
+

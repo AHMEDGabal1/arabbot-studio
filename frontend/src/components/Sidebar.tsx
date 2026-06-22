@@ -1,5 +1,5 @@
 import {
-  Bot, ChartBar, MessageCircle, Settings as SettingsIcon, Handshake, LogOut, LayoutDashboard, Wallet,
+  Bot, ChartBar, MessageCircle, Settings as SettingsIcon, Handshake, LogOut, LayoutDashboard,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
@@ -14,42 +14,68 @@ const links = [
 ];
 
 export default function Sidebar() {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
-    <aside className="fixed top-0 left-0 z-40 h-screen w-[--sidebar-width] bg-white border-r border-gray-200 flex flex-col">
-      <div className="flex items-center gap-2 px-6 h-16 border-b border-gray-200">
-        <Wallet className="w-7 h-7 text-blue-600" />
-        <span className="text-lg font-bold text-gray-900">ArabBot</span>
+    <aside className="fixed top-0 left-0 z-40 h-screen w-[--sidebar-width] bg-navy-800 flex flex-col">
+      <div className="relative px-6 h-20 flex items-center overflow-hidden">
+        <div className="absolute -top-6 -right-6 w-24 h-24 border-2 border-terracotta-500/20 rotate-12" />
+        <div className="absolute -bottom-4 -left-4 w-16 h-16 border border-gold-400/10 rotate-45" />
+        <div className="relative">
+          <span className="font-display text-xl font-semibold tracking-tight text-sand-50">ArabBot</span>
+          <span className="block font-body text-xs text-ash-400 tracking-widest uppercase mt-0.5">Studio</span>
+        </div>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {links.map(({ to, label, icon: Icon }) => (
+      <div className="h-px bg-gradient-to-r from-transparent via-navy-500/50 to-transparent mx-4" />
+
+      <nav className="flex-1 px-4 py-5 space-y-1 overflow-y-auto">
+        {links.map(({ to, label, icon: Icon }, i) => (
           <NavLink
             key={to}
             to={to}
             end={to === '/'}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              `group relative flex items-center gap-3 px-4 py-2.5 text-sm transition-all duration-200 ${
                 isActive
-                  ? 'bg-blue-50 text-blue-700'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'text-terracotta-300'
+                  : 'text-ash-400 hover:text-sand-100'
               }`
             }
+            style={{ animationDelay: `${i * 0.06}s` }}
           >
-            <Icon className="w-5 h-5" />
-            {label}
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <span className="absolute inset-0 bg-terracotta-500/10 rounded-lg border border-terracotta-500/20" />
+                )}
+                <Icon className={`relative w-4.5 h-4.5 transition-transform duration-200 group-hover:scale-110 ${isActive ? 'text-terracotta-400' : ''}`} />
+                <span className="relative font-medium tracking-wide">{label}</span>
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
 
-      <div className="p-3 border-t border-gray-200">
+      <div className="h-px bg-gradient-to-r from-transparent via-navy-500/50 to-transparent mx-4" />
+
+      <div className="p-4">
+        <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-navy-900/50 mb-3">
+          <div className="w-8 h-8 rounded-full bg-terracotta-500/20 flex items-center justify-center">
+            <span className="text-xs font-display font-semibold text-terracotta-400">
+              {user?.email?.charAt(0).toUpperCase() || 'U'}
+            </span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-sand-100 truncate">{user?.email}</p>
+          </div>
+        </div>
         <button
           onClick={logout}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+          className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-ash-400 hover:text-sand-100 hover:bg-navy-700/50 transition-all duration-200 group"
         >
-          <LogOut className="w-5 h-5" />
-          Logout
+          <LogOut className="w-4.5 h-4.5 transition-transform duration-200 group-hover:scale-110" />
+          <span className="tracking-wide">Logout</span>
         </button>
       </div>
     </aside>

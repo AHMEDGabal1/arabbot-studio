@@ -32,7 +32,6 @@ class MessageRead(BaseModel):
     raw_content: str | None
     intent_detected: str | None
     confidence: float | None
-    was_rag_hit: bool
     processing_ms: int | None
     created_at: datetime
 
