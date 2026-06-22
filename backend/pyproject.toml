@@ -1,0 +1,35 @@
+[project]
+name = "arabbot-studio"
+version = "0.1.0"
+description = "Egyptian SMB AI chatbot platform for WhatsApp Business"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi==0.115.0",
+    "uvicorn[standard]==0.32.0",
+    "sqlalchemy[asyncio]==2.0.35",
+    "asyncpg==0.30.0",
+    "alembic==1.14.0",
+    "redis[asyncio]==5.2.0",
+    "langchain==0.3.7",
+    "langchain-google-genai==2.0.5",
+    "langchain-community==0.3.7",
+    "faiss-cpu==1.9.0",
+    "pgvector==0.3.6",
+    "python-jose[cryptography]==3.3.0",
+    "passlib[bcrypt]==1.7.4",
+    "python-multipart==0.0.17",
+    "httpx==0.28.0",
+    "aiofiles==24.1.0",
+    "pydantic==2.10.0",
+    "pydantic-settings==2.6.1",
+    "python-dotenv==1.0.1",
+    "email-validator==2.2.0",
+]
+
+[project.scripts]
+arabbot = "src.main:app"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
