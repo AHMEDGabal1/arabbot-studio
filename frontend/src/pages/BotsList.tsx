@@ -29,7 +29,7 @@ export default function BotsList() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-ash-300 border-t-terracotta-500 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-2 border-ash-200 border-t-terracotta-500 rounded-full animate-spin" />
       </div>
     );
   }
@@ -43,7 +43,7 @@ export default function BotsList() {
         </div>
         <Link
           to="/bots/new"
-          className="group relative inline-flex items-center gap-2 px-5 py-2.5 font-display text-sm font-medium tracking-wide text-white bg-navy-700 rounded-lg overflow-hidden transition-all duration-200 hover:bg-navy-600"
+          className="btn btn-primary group relative overflow-hidden"
         >
           <span className="relative z-10 flex items-center gap-2">
             <Plus className="w-4 h-4" />
@@ -54,21 +54,21 @@ export default function BotsList() {
       </div>
 
       {bots.length === 0 ? (
-        <div className="relative bg-bg-card rounded-lg border border-sand-200 p-12 text-center overflow-hidden">
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-terracotta-500/5 rounded-full" />
+        <div className="card p-12 text-center">
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-terracotta-500/5 rounded-full pointer-events-none" />
           <Bot className="w-12 h-12 text-ash-200 mx-auto mb-4" />
           <h2 className="font-display text-lg font-semibold text-navy-900 mb-2">No bots yet</h2>
           <p className="font-body text-sm text-ash-400 mb-6">Create your first WhatsApp bot</p>
           <Link
             to="/bots/new"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-navy-700 text-white font-display text-sm font-medium rounded-lg hover:bg-navy-600 transition-colors"
+            className="btn btn-primary"
           >
             <Plus className="w-4 h-4" /> Create Bot
           </Link>
         </div>
       ) : (
-        <div className="relative bg-bg-card rounded-lg border border-sand-200 overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-terracotta-500/5 rounded-bl-full" />
+        <div className="card overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-terracotta-500/5 rounded-bl-full pointer-events-none" />
           <table className="w-full">
             <thead>
               <tr className="border-b border-sand-100 bg-sand-50">
@@ -90,17 +90,15 @@ export default function BotsList() {
                   <td className="px-5 py-4 font-body text-sm text-ash-500 uppercase">{bot.channel}</td>
                   <td className="px-5 py-4 font-body text-sm text-ash-500">{bot.language}</td>
                   <td className="px-5 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded text-xs font-medium ${
-                      bot.is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-ash-100 text-ash-500'
-                    }`}>
+                    <span className={`badge ${bot.is_active ? 'badge-active' : 'badge-inactive'}`}>
                       {bot.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <button onClick={() => toggle(bot)} className="p-1.5 text-ash-400 hover:text-terracotta-500 transition-colors" title={bot.is_active ? 'Deactivate' : 'Activate'}>
+                    <button onClick={() => toggle(bot)} className="p-1.5 text-ash-400 hover:text-terracotta-500 transition-colors rounded-lg hover:bg-terracotta-50" title={bot.is_active ? 'Deactivate' : 'Activate'} aria-label={bot.is_active ? 'Deactivate bot' : 'Activate bot'}>
                       {bot.is_active ? <ToggleRight className="w-4.5 h-4.5" /> : <ToggleLeft className="w-4.5 h-4.5" />}
                     </button>
-                    <button onClick={() => remove(bot.id)} className="p-1.5 text-ash-400 hover:text-red-500 transition-colors ml-1" title="Delete">
+                    <button onClick={() => remove(bot.id)} className="p-1.5 text-ash-400 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50 ml-1" title="Delete" aria-label="Delete bot">
                       <Trash2 className="w-4.5 h-4.5" />
                     </button>
                   </td>

@@ -13,7 +13,7 @@ export default function Register() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  if (user) return <Navigate to="/" replace />;
+  if (user) return <Navigate to="/dashboard" replace />;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -22,7 +22,7 @@ export default function Register() {
     try {
       await register(email, password, name, phone || undefined);
       await refresh();
-      navigate('/');
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Registration failed');
     } finally {
@@ -63,47 +63,51 @@ export default function Register() {
           </div>
 
           {error && (
-            <div className="mb-6 p-3 bg-terracotta-50 border border-terracotta-300/30 rounded-lg">
+            <div className="mb-6 p-3 bg-terracotta-50 border border-terracotta-300/30 rounded-lg" role="alert">
               <p className="text-sm text-terracotta-700">{error}</p>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block font-body text-sm font-medium text-ash-600 mb-1.5">Email</label>
+              <label htmlFor="reg-email" className="block font-body text-sm font-medium text-ash-600 mb-1.5">Email</label>
               <input
+                id="reg-email"
                 type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-white border border-sand-200 rounded-lg focus:border-terracotta-400 focus:ring-1 focus:ring-terracotta-400/30 outline-none transition-all duration-200 font-body text-sm text-navy-900 placeholder:text-ash-300"
+                className="input"
                 placeholder="you@example.com"
               />
             </div>
             <div>
-              <label className="block font-body text-sm font-medium text-ash-600 mb-1.5">Name</label>
+              <label htmlFor="reg-name" className="block font-body text-sm font-medium text-ash-600 mb-1.5">Name</label>
               <input
+                id="reg-name"
                 type="text" required value={name} onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-3 bg-white border border-sand-200 rounded-lg focus:border-terracotta-400 focus:ring-1 focus:ring-terracotta-400/30 outline-none transition-all duration-200 font-body text-sm text-navy-900 placeholder:text-ash-300"
+                className="input"
                 placeholder="Your business name"
               />
             </div>
             <div>
-              <label className="block font-body text-sm font-medium text-ash-600 mb-1.5">Phone (optional)</label>
+              <label htmlFor="reg-phone" className="block font-body text-sm font-medium text-ash-600 mb-1.5">Phone (optional)</label>
               <input
+                id="reg-phone"
                 type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-4 py-3 bg-white border border-sand-200 rounded-lg focus:border-terracotta-400 focus:ring-1 focus:ring-terracotta-400/30 outline-none transition-all duration-200 font-body text-sm text-navy-900 placeholder:text-ash-300"
+                className="input"
                 placeholder="+201234567890"
               />
             </div>
             <div>
-              <label className="block font-body text-sm font-medium text-ash-600 mb-1.5">Password</label>
+              <label htmlFor="reg-password" className="block font-body text-sm font-medium text-ash-600 mb-1.5">Password</label>
               <input
+                id="reg-password"
                 type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-white border border-sand-200 rounded-lg focus:border-terracotta-400 focus:ring-1 focus:ring-terracotta-400/30 outline-none transition-all duration-200 font-body text-sm text-navy-900 placeholder:text-ash-300"
+                className="input"
                 placeholder="••••••••"
               />
             </div>
             <button
               type="submit" disabled={loading}
-              className="relative w-full py-3 font-display font-medium text-sm tracking-wider text-white bg-navy-700 rounded-lg hover:bg-navy-600 disabled:opacity-50 transition-all duration-200 overflow-hidden group"
+              className="btn btn-primary w-full justify-center py-3 group relative overflow-hidden"
             >
               <span className="relative z-10">{loading ? 'Creating account...' : 'Create Account'}</span>
               <span className="absolute inset-0 bg-gradient-to-r from-terracotta-500 to-terracotta-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

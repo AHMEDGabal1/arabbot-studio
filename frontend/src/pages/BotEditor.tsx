@@ -66,7 +66,7 @@ export default function BotEditor() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-ash-300 border-t-terracotta-500 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-2 border-ash-200 border-t-terracotta-500 rounded-full animate-spin" />
       </div>
     );
   }
@@ -81,26 +81,28 @@ export default function BotEditor() {
       <h1 className="font-display text-3xl font-semibold text-navy-900 mb-6">{isNew ? 'Create Bot' : 'Edit Bot'}</h1>
 
       {error && (
-        <div className="mb-6 p-3 bg-terracotta-50 border border-terracotta-300/30 rounded-lg">
+        <div className="mb-6 p-3 bg-terracotta-50 border border-terracotta-300/30 rounded-lg" role="alert">
           <p className="font-body text-sm text-terracotta-700">{error}</p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-bg-card rounded-lg border border-sand-200 p-6 space-y-5">
+      <form onSubmit={handleSubmit} className="card p-6 space-y-5">
         <div>
-          <label className="block font-body text-sm font-medium text-ash-600 mb-1.5">Bot Name</label>
+          <label htmlFor="bot-name" className="block font-body text-sm font-medium text-ash-600 mb-1.5">Bot Name</label>
           <input
+            id="bot-name"
             required value={form.name} onChange={(e) => set('name', e.target.value)}
-            className="w-full px-4 py-3 bg-white border border-sand-200 rounded-lg focus:border-terracotta-400 focus:ring-1 focus:ring-terracotta-400/30 outline-none transition-all duration-200 font-body text-sm text-navy-900 placeholder:text-ash-300"
+            className="input"
             placeholder="My Restaurant Bot"
           />
         </div>
 
         <div>
-          <label className="block font-body text-sm font-medium text-ash-600 mb-1.5">Channel</label>
+          <label htmlFor="bot-channel" className="block font-body text-sm font-medium text-ash-600 mb-1.5">Channel</label>
           <select
+            id="bot-channel"
             value={form.channel} onChange={(e) => set('channel', e.target.value)}
-            className="w-full px-4 py-3 bg-white border border-sand-200 rounded-lg focus:border-terracotta-400 focus:ring-1 focus:ring-terracotta-400/30 outline-none font-body text-sm text-navy-900"
+            className="input"
           >
             <option value="whatsapp">WhatsApp</option>
             <option value="facebook">Facebook Messenger</option>
@@ -108,37 +110,42 @@ export default function BotEditor() {
         </div>
 
         <div>
-          <label className="block font-body text-sm font-medium text-ash-600 mb-1.5">WhatsApp Phone Number ID</label>
+          <label htmlFor="wa-phone" className="block font-body text-sm font-medium text-ash-600 mb-1.5">WhatsApp Phone Number ID</label>
           <input
+            id="wa-phone"
             value={form.wa_phone_number_id || ''} onChange={(e) => set('wa_phone_number_id', e.target.value)}
-            className="w-full px-4 py-3 bg-white border border-sand-200 rounded-lg focus:border-terracotta-400 focus:ring-1 focus:ring-terracotta-400/30 outline-none transition-all duration-200 font-body text-sm text-navy-900 placeholder:text-ash-300"
+            className="input"
             placeholder="From Meta Business dashboard"
           />
         </div>
 
         <div>
-          <label className="block font-body text-sm font-medium text-ash-600 mb-1.5">WhatsApp Access Token</label>
+          <label htmlFor="wa-token" className="block font-body text-sm font-medium text-ash-600 mb-1.5">WhatsApp Access Token</label>
           <input
+            id="wa-token"
+            type="password"
             value={form.wa_access_token || ''} onChange={(e) => set('wa_access_token', e.target.value)}
-            className="w-full px-4 py-3 bg-white border border-sand-200 rounded-lg focus:border-terracotta-400 focus:ring-1 focus:ring-terracotta-400/30 outline-none transition-all duration-200 font-body text-sm text-navy-900 placeholder:text-ash-300"
+            className="input"
             placeholder="Permanent access token"
           />
         </div>
 
         <div>
-          <label className="block font-body text-sm font-medium text-ash-600 mb-1.5">System Prompt</label>
+          <label htmlFor="system-prompt" className="block font-body text-sm font-medium text-ash-600 mb-1.5">System Prompt</label>
           <textarea
+            id="system-prompt"
             rows={4} value={form.system_prompt || ''} onChange={(e) => set('system_prompt', e.target.value)}
-            className="w-full px-4 py-3 bg-white border border-sand-200 rounded-lg focus:border-terracotta-400 focus:ring-1 focus:ring-terracotta-400/30 outline-none transition-all duration-200 font-body text-sm text-navy-900 placeholder:text-ash-300 resize-none"
+            className="input resize-none"
             placeholder="You are a helpful assistant for an Egyptian restaurant..."
           />
         </div>
 
         <div>
-          <label className="block font-body text-sm font-medium text-ash-600 mb-1.5">Fallback Message</label>
+          <label htmlFor="fallback" className="block font-body text-sm font-medium text-ash-600 mb-1.5">Fallback Message</label>
           <input
+            id="fallback"
             value={form.fallback_message || ''} onChange={(e) => set('fallback_message', e.target.value)}
-            className="w-full px-4 py-3 bg-white border border-sand-200 rounded-lg focus:border-terracotta-400 focus:ring-1 focus:ring-terracotta-400/30 outline-none transition-all duration-200 font-body text-sm text-navy-900 placeholder:text-ash-300"
+            className="input"
           />
         </div>
 
@@ -154,14 +161,14 @@ export default function BotEditor() {
         <div className="flex items-center gap-3 pt-2">
           <button
             type="submit" disabled={saving}
-            className="relative px-6 py-2.5 font-display text-sm font-medium tracking-wide text-white bg-navy-700 rounded-lg overflow-hidden transition-all duration-200 hover:bg-navy-600 disabled:opacity-50 group"
+            className="btn btn-primary group relative overflow-hidden"
           >
             <span className="relative z-10">{saving ? 'Saving...' : isNew ? 'Create Bot' : 'Save Changes'}</span>
             <span className="absolute inset-0 bg-gradient-to-r from-terracotta-500 to-terracotta-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </button>
           <button
             type="button" onClick={() => navigate('/bots')}
-            className="px-6 py-2.5 border border-sand-200 text-ash-600 font-body text-sm font-medium rounded-lg hover:bg-sand-50 transition-colors"
+            className="btn btn-secondary"
           >
             Cancel
           </button>

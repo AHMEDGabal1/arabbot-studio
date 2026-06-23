@@ -5,7 +5,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 
 const links = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/bots', label: 'Bots', icon: Bot },
   { to: '/conversations', label: 'Conversations', icon: MessageCircle },
   { to: '/handoffs', label: 'Handoffs', icon: Handshake },
@@ -17,7 +17,7 @@ export default function Sidebar() {
   const { user, logout } = useAuth();
 
   return (
-    <aside className="fixed top-0 left-0 z-40 h-screen w-[--sidebar-width] bg-navy-800 flex flex-col">
+    <aside className="fixed top-0 left-0 z-40 h-screen w-[--sidebar-width] card-glass flex flex-col">
       <div className="relative px-6 h-20 flex items-center overflow-hidden">
         <div className="absolute -top-6 -right-6 w-24 h-24 border-2 border-terracotta-500/20 rotate-12" />
         <div className="absolute -bottom-4 -left-4 w-16 h-16 border border-gold-400/10 rotate-45" />
@@ -29,7 +29,7 @@ export default function Sidebar() {
 
       <div className="h-px bg-gradient-to-r from-transparent via-navy-500/50 to-transparent mx-4" />
 
-      <nav className="flex-1 px-4 py-5 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-4 py-5 space-y-1 overflow-y-auto" aria-label="Main navigation">
         {links.map(({ to, label, icon: Icon }, i) => (
           <NavLink
             key={to}
@@ -49,7 +49,7 @@ export default function Sidebar() {
                 {isActive && (
                   <span className="absolute inset-0 bg-terracotta-500/10 rounded-lg border border-terracotta-500/20" />
                 )}
-                <Icon className={`relative w-4.5 h-4.5 transition-transform duration-200 group-hover:scale-110 ${isActive ? 'text-terracotta-400' : ''}`} />
+                <Icon className={`relative w-4.5 h-4.5 transition-all duration-200 group-hover:scale-110 group-hover:-translate-y-0.5 ${isActive ? 'text-terracotta-400' : ''}`} />
                 <span className="relative font-medium tracking-wide">{label}</span>
               </>
             )}
@@ -61,7 +61,7 @@ export default function Sidebar() {
 
       <div className="p-4">
         <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-navy-900/50 mb-3">
-          <div className="w-8 h-8 rounded-full bg-terracotta-500/20 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-terracotta-500/20 flex items-center justify-center" aria-hidden="true">
             <span className="text-xs font-display font-semibold text-terracotta-400">
               {user?.email?.charAt(0).toUpperCase() || 'U'}
             </span>
@@ -73,8 +73,9 @@ export default function Sidebar() {
         <button
           onClick={logout}
           className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-ash-400 hover:text-sand-100 hover:bg-navy-700/50 transition-all duration-200 group"
+          aria-label="Log out"
         >
-          <LogOut className="w-4.5 h-4.5 transition-transform duration-200 group-hover:scale-110" />
+          <LogOut className="w-4.5 h-4.5 transition-transform duration-200 group-hover:scale-110 group-hover:-translate-x-0.5" />
           <span className="tracking-wide">Logout</span>
         </button>
       </div>

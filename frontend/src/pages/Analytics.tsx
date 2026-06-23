@@ -29,7 +29,7 @@ export default function Analytics() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-ash-300 border-t-terracotta-500 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-2 border-ash-200 border-t-terracotta-500 rounded-full animate-spin" />
       </div>
     );
   }
@@ -53,7 +53,8 @@ export default function Analytics() {
         </div>
         <select
           value={selectedBot} onChange={(e) => setSelectedBot(e.target.value)}
-          className="px-4 py-2.5 bg-bg-card border border-sand-200 rounded-lg focus:border-terracotta-400 focus:ring-1 focus:ring-terracotta-400/30 outline-none font-body text-sm text-navy-900"
+          className="input max-w-[200px]"
+          aria-label="Filter by bot"
         >
           <option value="">All bots</option>
           {bots.map((bot) => (
@@ -64,7 +65,7 @@ export default function Analytics() {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         {overviewCards.map(({ label, value }, i) => (
-          <div key={label} className="relative bg-bg-card rounded-lg border border-sand-200 p-5 overflow-hidden animate-fade-up" style={{ animationDelay: `${i * 0.08}s` }}>
+          <div key={label} className="card card-hover p-5 animate-fade-up" style={{ animationDelay: `${i * 0.08}s` }}>
             <div className="absolute -top-6 -right-6 w-16 h-16 bg-terracotta-500/5 rounded-full" />
             <p className="font-body text-xs font-medium text-ash-400 tracking-wider uppercase">{label}</p>
             <p className="font-display text-3xl font-semibold text-navy-900 mt-1.5">{value}</p>
@@ -74,7 +75,7 @@ export default function Analytics() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {data?.messages_over_time && data.messages_over_time.length > 0 && (
-          <div className="bg-bg-card rounded-lg border border-sand-200 p-6">
+          <div className="card p-6">
             <h2 className="font-display text-base font-semibold text-navy-900 mb-4">Messages Over Time</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={data.messages_over_time}>
@@ -97,7 +98,7 @@ export default function Analytics() {
         )}
 
         {intentData.length > 0 && (
-          <div className="bg-bg-card rounded-lg border border-sand-200 p-6">
+          <div className="card p-6">
             <h2 className="font-display text-base font-semibold text-navy-900 mb-4">Intent Distribution</h2>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
