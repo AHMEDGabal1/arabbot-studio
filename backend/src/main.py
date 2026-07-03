@@ -1,10 +1,15 @@
+import json
+import logging
 import uuid
 from contextvars import ContextVar
 
+import sentry_sdk
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sqlalchemy import text
 
+from src.config import settings
 from src.database import get_db
 from src.middleware.workspace import workspace_middleware
 from src.routers import analytics, auth, bots, conversations, handoffs, knowledge
@@ -12,11 +17,39 @@ from src.webhooks import whatsapp
 
 request_id_var: ContextVar[str] = ContextVar("request_id")
 
+
+class JSONFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        log = {
+            "ts": self.formatTime(record),
+            "level": record.levelname,
+            "logger": record.name,
+            "msg": record.getMessage(),
+        }
+        if hasattr(record, "extra"):
+            log.update(record.extra)
+        return json.dumps(log)
+
+
+handler = logging.StreamHandler()
+handler.setFormatter(JSONFormatter())
+logging.basicConfig(level=logging.INFO, handlers=[handler], force=True)
+
+
+if settings.sentry_dsn:
+    sentry_sdk.init(
+        dsn=settings.sentry_dsn,
+        environment=settings.environment,
+        integrations=[FastApiIntegration()],
+    )
+
+origins = [settings.base_url] if settings.environment == "production" else ["*"]
+
 app = FastAPI(title="ArabBot Studio", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

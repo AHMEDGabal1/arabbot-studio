@@ -2,8 +2,12 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from src.config import settings as test_settings
 from src.database import Base, get_db
 from src.main import app
+
+test_settings.environment = "test"
+test_settings.meta_app_secret = "test_secret"
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
 

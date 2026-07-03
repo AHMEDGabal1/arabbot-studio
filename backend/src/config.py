@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     meta_app_id: str = ""
     meta_app_secret: str = ""
 
+    sentry_dsn: str = ""
+
     secret_key: str = "change-me-to-a-long-random-string"
     environment: str = "development"
     base_url: str = "http://localhost:8000"

@@ -11,6 +11,7 @@ from src.database import get_db
 from src.deps import get_current_user
 from src.models import User, Workspace, WorkspaceMember
 from src.schemas import LoginRequest, RefreshRequest, RegisterRequest, TokenResponse, UserResponse
+from src.services.rate_limiter import rate_limit
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -26,7 +27,11 @@ def _create_token(user_id: str, workspace_id: str) -> str:
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
-async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
+async def register(
+    body: RegisterRequest,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(rate_limit(5, 60)),
+):
     existing = await db.execute(select(User).where(User.email == body.email))
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
@@ -52,7 +57,11 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login")
-async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
+async def login(
+    body: LoginRequest,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(rate_limit(5, 60)),
+):
     result = await db.execute(select(User).where(User.email == body.email))
     user = result.scalar_one_or_none()
     if not user or not bcrypt.checkpw(body.password.encode(), user.password_hash.encode()):

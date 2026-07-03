@@ -11,10 +11,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.chains.orchestrator import process_message
-from src.database import get_db
+from src.config import settings
+from src.database import async_session_factory, get_db
 from src.models import Bot, Conversation, Message
 from src.services import conversation_service, handoff_service
 from src.services.knowledge_service import search_knowledge
+from src.services.rate_limiter import rate_limit
 
 logger = logging.getLogger(__name__)
 
@@ -64,49 +66,56 @@ async def verify_webhook(bot_id: str, request: Request, db: AsyncSession = Depen
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Verification failed")
 
 
-async def process_incoming(bot: Bot, msg: dict, db: AsyncSession):
-    start = time.monotonic()
-    channel_user_id = msg["from"]
-    text = msg.get("text", "")
+async def process_incoming(bot: Bot, msg: dict):
+    async with async_session_factory() as db:
+        try:
+            start = time.monotonic()
+            channel_user_id = msg["from"]
+            text = msg.get("text", "")
 
-    conversation = await conversation_service.get_or_create_conversation(
-        db, str(bot.id), "whatsapp", channel_user_id,
-    )
+            conversation = await conversation_service.get_or_create_conversation(
+                db, str(bot.id), "whatsapp", channel_user_id,
+            )
 
-    user_msg = await conversation_service.add_message(
-        db, str(conversation.id), "user", text, raw_content=text,
-    )
+            user_msg = await conversation_service.add_message(
+                db, str(conversation.id), "user", text, raw_content=text,
+            )
 
-    knowledge_items = await search_knowledge(str(bot.id), text)
+            knowledge_items = await search_knowledge(str(bot.id), text)
 
-    result = await process_message(text, knowledge_items if knowledge_items else None)
+            result = await process_message(text, knowledge_items if knowledge_items else None)
 
-    processing_ms = int((time.monotonic() - start) * 1000)
+            processing_ms = int((time.monotonic() - start) * 1000)
 
-    user_msg.intent_detected = result["intent"]
-    user_msg.confidence = result["confidence"]
-    user_msg.processing_ms = processing_ms
+            user_msg.intent_detected = result["intent"]
+            user_msg.confidence = result["confidence"]
+            user_msg.processing_ms = processing_ms
 
-    await conversation_service.add_message(
-        db, str(conversation.id), "assistant", result["response"],
-    )
+            await conversation_service.add_message(
+                db, str(conversation.id), "assistant", result["response"],
+            )
 
-    if result["requires_human"] and bot.human_handoff_enabled:
-        await handoff_service.create_handoff(
-            db, str(conversation.id), reason=f"Intent: {result['intent']}",
-        )
-        conversation.status = "handed_off"
+            if result["requires_human"] and bot.human_handoff_enabled:
+                await handoff_service.create_handoff(
+                    db, str(conversation.id), reason=f"Intent: {result['intent']}",
+                )
+                conversation.status = "handed_off"
 
-    logger.info(
-        "msg_processed",
-        extra={
-            "bot_id": str(bot.id),
-            "conversation_id": str(conversation.id),
-            "intent": result["intent"],
-            "confidence": result["confidence"],
-            "processing_ms": processing_ms,
-        },
-    )
+            await db.commit()
+
+            logger.info(
+                "msg_processed",
+                extra={
+                    "bot_id": str(bot.id),
+                    "conversation_id": str(conversation.id),
+                    "intent": result["intent"],
+                    "confidence": result["confidence"],
+                    "processing_ms": processing_ms,
+                },
+            )
+        except Exception:
+            await db.rollback()
+            logger.exception("msg_processing_failed", extra={"bot_id": str(bot.id)})
 
 
 @router.post("/{bot_id}")
@@ -115,22 +124,23 @@ async def receive_webhook(
     request: Request,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
+    _=Depends(rate_limit(30, 60, "webhook:")),
 ):
     body = await request.body()
     signature = request.headers.get("X-Hub-Signature-256", "")
+
+    if not verify_signature(body, signature, settings.meta_app_secret):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid signature")
 
     result = await db.execute(select(Bot).where(Bot.id == uuid.UUID(bot_id), Bot.deleted_at.is_(None)))
     bot = result.scalar_one_or_none()
     if not bot:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bot not found")
 
-    if not verify_signature(body, signature, bot.wa_access_token or ""):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid signature")
-
     payload = json.loads(body)
     messages = extract_messages(payload)
 
     for msg in messages:
-        background_tasks.add_task(process_incoming, bot, msg, db)
+        background_tasks.add_task(process_incoming, bot, msg)
 
     return {"status": "ok"}
