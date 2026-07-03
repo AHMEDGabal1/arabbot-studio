@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     secret_key: str = "change-me-to-a-long-random-string"
     environment: str = "development"
     base_url: str = "http://localhost:8000"
+    ssl_certfile: str = ""
+    ssl_keyfile: str = ""
 
     @property
     def jwt_algorithm(self) -> str:

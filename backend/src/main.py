@@ -2,6 +2,8 @@ import json
 import logging
 import uuid
 from contextvars import ContextVar
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
 import sentry_sdk
 from fastapi import FastAPI, Request
@@ -33,7 +35,13 @@ class JSONFormatter(logging.Formatter):
 
 handler = logging.StreamHandler()
 handler.setFormatter(JSONFormatter())
-logging.basicConfig(level=logging.INFO, handlers=[handler], force=True)
+
+logs_dir = Path("logs")
+logs_dir.mkdir(exist_ok=True)
+file_handler = RotatingFileHandler(logs_dir / "arabbot.jsonl", maxBytes=10 * 1024 * 1024, backupCount=5)
+file_handler.setFormatter(JSONFormatter())
+
+logging.basicConfig(level=logging.INFO, handlers=[handler, file_handler], force=True)
 
 
 if settings.sentry_dsn:
