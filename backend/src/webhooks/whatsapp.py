@@ -4,7 +4,6 @@ import json
 import logging
 import time
 import uuid
-from datetime import datetime, timezone
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from sqlalchemy import select
@@ -13,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.chains.orchestrator import process_message
 from src.config import settings
 from src.database import async_session_factory, get_db
-from src.models import Bot, Conversation, Message
+from src.models import Bot
 from src.services import conversation_service, handoff_service
 from src.services.knowledge_service import search_knowledge
 from src.services.rate_limiter import rate_limit

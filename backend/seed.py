@@ -1,7 +1,6 @@
 import asyncio
 import bcrypt
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import async_session_factory
 from src.models import User, Workspace, WorkspaceMember, Bot

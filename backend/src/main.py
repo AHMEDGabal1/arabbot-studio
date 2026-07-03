@@ -88,7 +88,6 @@ app.include_router(whatsapp.router)
 @app.get("/health")
 async def health():
     db_ok = False
-    redis_ok = False
     try:
         async for db in get_db():
             await db.execute(text("SELECT 1"))
@@ -99,5 +98,4 @@ async def health():
     return {
         "status": "ok" if db_ok else "degraded",
         "database": "up" if db_ok else "down",
-        "redis": "up" if redis_ok else "unknown",
     }
