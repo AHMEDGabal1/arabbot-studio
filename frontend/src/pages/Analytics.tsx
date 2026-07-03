@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { getAnalyticsOverview, getBotAnalytics, listBots } from '../lib/api';
 import type { Analytics as AnalyticsType, Bot } from '../types';
+import PageHeader from '../components/PageHeader';
+import Skeleton from '../components/Skeleton';
 
 const COLORS = ['#c1694f', '#e9b741', '#2a3050', '#6b6360', '#d4836a', '#b8891e', '#4a5278', '#8a8079', '#e09d87'];
 
@@ -20,48 +22,39 @@ export default function Analytics() {
   useEffect(() => {
     (async () => {
       try {
-        const result = selectedBot ? await getBotAnalytics(selectedBot) : await getAnalyticsOverview();
-        setData(result);
+        setData(selectedBot ? await getBotAnalytics(selectedBot) : await getAnalyticsOverview());
       } catch {}
     })();
   }, [selectedBot]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-10 h-10 border-2 border-ash-200 border-t-terracotta-500 rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="space-y-8">
+      <PageHeader title="Analytics" desc="Loading..." />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">{[1,2,3].map(i => <Skeleton key={i} className="h-28 w-full rounded-xl" />)}</div>
+    </div>
+  );
 
   const intentData = data?.intent_breakdown
-    ? Object.entries(data.intent_breakdown).map(([name, value]) => ({ name, value }))
-    : [];
+    ? Object.entries(data.intent_breakdown).map(([name, value]) => ({ name, value })) : [];
 
   const overviewCards = [
-    { label: 'Total Conversations', value: data?.total_conversations ?? 0 },
-    { label: 'Total Messages', value: data?.total_messages ?? 0 },
-    { label: 'Intents Detected', value: intentData.reduce((s, i) => s + i.value, 0) },
+    { label: 'Total Conversations', value: data?.total_conversations ?? 0, icon: 'MessageCircle' },
+    { label: 'Total Messages', value: data?.total_messages ?? 0, icon: 'MessageSquare' },
+    { label: 'Intents Detected', value: intentData.reduce((s, i) => s + i.value, 0), icon: 'Brain' },
   ];
 
   return (
     <div className="animate-fade-up">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="font-display text-3xl font-semibold text-navy-900">Analytics</h1>
-          <p className="font-body text-sm text-ash-500 mt-1">Track bot performance and usage</p>
-        </div>
-        <select
-          value={selectedBot} onChange={(e) => setSelectedBot(e.target.value)}
-          className="input max-w-[200px]"
-          aria-label="Filter by bot"
-        >
-          <option value="">All bots</option>
-          {bots.map((bot) => (
-            <option key={bot.id} value={bot.id}>{bot.name}</option>
-          ))}
-        </select>
-      </div>
+      <PageHeader
+        title="Analytics"
+        desc="Track bot performance and usage"
+        action={
+          <select value={selectedBot} onChange={(e) => setSelectedBot(e.target.value)} className="input max-w-[200px]" aria-label="Filter by bot">
+            <option value="">All bots</option>
+            {bots.map((bot) => <option key={bot.id} value={bot.id}>{bot.name}</option>)}
+          </select>
+        }
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         {overviewCards.map(({ label, value }, i) => (
@@ -75,22 +68,14 @@ export default function Analytics() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {data?.messages_over_time && data.messages_over_time.length > 0 && (
-          <div className="card p-6">
+          <div className="card p-6 animate-scale-in">
             <h2 className="font-display text-base font-semibold text-navy-900 mb-4">Messages Over Time</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={data.messages_over_time}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#dfdbd7" />
                 <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#8a8079' }} />
                 <YAxis tick={{ fontSize: 12, fill: '#8a8079' }} />
-                <Tooltip
-                  contentStyle={{
-                    background: '#1a1f2e',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: '#f5ede6',
-                    fontSize: '13px',
-                  }}
-                />
+                <Tooltip contentStyle={{ background: '#1a1f2e', border: 'none', borderRadius: '8px', color: '#f5ede6', fontSize: '13px' }} />
                 <Bar dataKey="count" fill="#c1694f" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -98,29 +83,15 @@ export default function Analytics() {
         )}
 
         {intentData.length > 0 && (
-          <div className="card p-6">
+          <div className="card p-6 animate-scale-in">
             <h2 className="font-display text-base font-semibold text-navy-900 mb-4">Intent Distribution</h2>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie data={intentData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
-                  {intentData.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                  ))}
+                  {intentData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
-                <Tooltip
-                  contentStyle={{
-                    background: '#1a1f2e',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: '#f5ede6',
-                    fontSize: '13px',
-                  }}
-                />
-                <Legend
-                  formatter={(value: string) => (
-                    <span style={{ color: '#6b6360', fontSize: '12px' }}>{value}</span>
-                  )}
-                />
+                <Tooltip contentStyle={{ background: '#1a1f2e', border: 'none', borderRadius: '8px', color: '#f5ede6', fontSize: '13px' }} />
+                <Legend formatter={(value: string) => <span style={{ color: '#6b6360', fontSize: '12px' }}>{value}</span>} />
               </PieChart>
             </ResponsiveContainer>
           </div>

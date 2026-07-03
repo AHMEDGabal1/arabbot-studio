@@ -22,7 +22,7 @@ def _get_embeddings():
         if not settings.google_api_key:
             return None
         _embeddings = GoogleGenerativeAIEmbeddings(
-            model="models/text-embedding-004",
+            model="models/gemini-embedding-001",
             google_api_key=settings.google_api_key,
         )
     return _embeddings

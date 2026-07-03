@@ -1,17 +1,15 @@
 import { useAuth } from '../lib/auth';
 import { User, Phone } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 
 export default function Settings() {
   const { user } = useAuth();
 
   return (
     <div className="max-w-lg mx-auto animate-fade-up">
-      <div className="mb-8">
-        <h1 className="font-display text-3xl font-semibold text-navy-900">Settings</h1>
-        <p className="font-body text-sm text-ash-500 mt-1">Manage your account and integrations</p>
-      </div>
+      <PageHeader title="Settings" desc="Manage your account and integrations" />
 
-      <div className="card p-6">
+      <div className="card p-6 animate-scale-in">
         <h2 className="font-display text-base font-semibold text-navy-900 mb-4">Profile</h2>
         <div className="space-y-3">
           <div className="flex items-center gap-3 p-3 bg-sand-50 rounded-lg">
@@ -37,7 +35,7 @@ export default function Settings() {
         </div>
       </div>
 
-      <div className="mt-6 card p-6">
+      <div className="mt-6 card p-6 animate-scale-in">
         <h2 className="font-display text-base font-semibold text-navy-900 mb-4">Webhook URLs</h2>
         <p className="font-body text-sm text-ash-500 mb-3">Configure these URLs in your Meta Business dashboard:</p>
         <div className="space-y-3">
