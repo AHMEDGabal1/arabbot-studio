@@ -24,12 +24,9 @@ async def process_message(text: str, knowledge_items: list[dict] | None = None) 
         response_text = "آسفين على الإزعاج. هورينك شكوتك لفريقنا وهنتواصل معاك في أقرب وقت."
         requires_human = True
     else:
-        context = ""
-        if knowledge_items:
-            context = "\n\n".join(
-                f"Q: {k['question']}\nA: {k['answer']}"
-                for k in knowledge_items if k.get("question")
-            )
+        context = "\n\n".join(
+            k["content"] for k in (knowledge_items or [])
+        )
         if context:
             response_text = await generate_response(normalized, context)
         else:

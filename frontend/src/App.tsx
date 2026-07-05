@@ -29,8 +29,8 @@ export default function App() {
             <Route element={<Layout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/bots" element={<BotsList />} />
-              <Route path="/bots/:id" element={<BotEditor />} />
               <Route path="/bots/new" element={<BotEditor />} />
+              <Route path="/bots/:id" element={<BotEditor />} />
               <Route path="/bots/:botId/knowledge" element={<KnowledgeBase />} />
               <Route path="/conversations" element={<Conversations />} />
               <Route path="/analytics" element={<Analytics />} />

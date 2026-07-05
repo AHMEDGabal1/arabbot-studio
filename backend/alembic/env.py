@@ -5,12 +5,15 @@ from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+from src.config import settings
 from src.database import Base
 from src.models import Workspace, WorkspaceMember, User, Bot, Conversation, Message, KnowledgeItem, HandoffQueue
 
 config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
+
+config.set_main_option("sqlalchemy.url", settings.database_url)
 
 target_metadata = Base.metadata
 
@@ -33,6 +36,7 @@ async def run_async_migrations():
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        connect_args={"ssl": "require", "statement_cache_size": 0} if "supabase.co" in settings.database_url else {},
     )
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)

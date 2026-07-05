@@ -12,10 +12,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.chains.orchestrator import process_message
 from src.config import settings
 from src.database import async_session_factory, get_db
-from src.models import Bot
+from src.models import Bot, Workspace
 from src.services import conversation_service, handoff_service
 from src.services.knowledge_service import search_knowledge
 from src.services.rate_limiter import rate_limit
+from src.services.wa_sender_service import send_wa_message
 
 logger = logging.getLogger(__name__)
 
@@ -50,17 +51,17 @@ def extract_messages(body: dict) -> list[dict]:
 
 
 @router.get("/{bot_id}")
-async def verify_webhook(bot_id: str, request: Request, db: AsyncSession = Depends(get_db)):
+async def verify_webhook(bot_id: uuid.UUID, request: Request, db: AsyncSession = Depends(get_db)):
     mode = request.query_params.get("hub.mode")
     token = request.query_params.get("hub.verify_token")
     challenge = request.query_params.get("hub.challenge")
 
-    result = await db.execute(select(Bot).where(Bot.id == uuid.UUID(bot_id), Bot.deleted_at.is_(None)))
+    result = await db.execute(select(Bot).where(Bot.id == bot_id, Bot.deleted_at.is_(None)))
     bot = result.scalar_one_or_none()
     if not bot:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bot not found")
 
-    if mode == "subscribe" and token:
+    if mode == "subscribe" and token and token == bot.wa_verify_token:
         return int(challenge)
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Verification failed")
 
@@ -80,6 +81,10 @@ async def process_incoming(bot: Bot, msg: dict):
                 db, str(conversation.id), "user", text, raw_content=text,
             )
 
+            ws = await db.get(Workspace, bot.workspace_id)
+            if ws:
+                ws.messages_used_this_month = (ws.messages_used_this_month or 0) + 1
+
             knowledge_items = await search_knowledge(str(bot.id), text)
 
             result = await process_message(text, knowledge_items if knowledge_items else None)
@@ -93,6 +98,9 @@ async def process_incoming(bot: Bot, msg: dict):
             await conversation_service.add_message(
                 db, str(conversation.id), "assistant", result["response"],
             )
+
+            if bot.wa_phone_number_id and bot.wa_access_token:
+                await send_wa_message(channel_user_id, result["response"], bot.wa_phone_number_id, bot.wa_access_token)
 
             if result["requires_human"] and bot.human_handoff_enabled:
                 await handoff_service.create_handoff(
@@ -119,7 +127,7 @@ async def process_incoming(bot: Bot, msg: dict):
 
 @router.post("/{bot_id}")
 async def receive_webhook(
-    bot_id: str,
+    bot_id: uuid.UUID,
     request: Request,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
@@ -131,7 +139,7 @@ async def receive_webhook(
     if not verify_signature(body, signature, settings.meta_app_secret):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid signature")
 
-    result = await db.execute(select(Bot).where(Bot.id == uuid.UUID(bot_id), Bot.deleted_at.is_(None)))
+    result = await db.execute(select(Bot).where(Bot.id == bot_id, Bot.deleted_at.is_(None)))
     bot = result.scalar_one_or_none()
     if not bot:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bot not found")

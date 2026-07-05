@@ -35,7 +35,7 @@ async def list_conversations(
 
 @router.get("/{conv_id}", response_model=ConversationRead)
 async def get_conversation(
-    conv_id: str,
+    conv_id: uuid.UUID,
     workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db),
 ):
@@ -54,7 +54,7 @@ async def get_conversation(
 
 @router.get("/{conv_id}/messages", response_model=list[MessageRead])
 async def get_messages(
-    conv_id: str,
+    conv_id: uuid.UUID,
     workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db),
 ):

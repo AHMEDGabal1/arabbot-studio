@@ -17,6 +17,7 @@ class Bot(Base):
     channel = Column(String(20), nullable=False)
     wa_phone_number_id = Column(Text, nullable=True)
     wa_access_token = Column(Text, nullable=True)
+    wa_verify_token = Column(Text, nullable=True)
     system_prompt = Column(Text, nullable=True)
     fallback_message = Column(Text, default="هورينك لحد من فريقنا دلوقتي")
     human_handoff_enabled = Column(Boolean, default=True)

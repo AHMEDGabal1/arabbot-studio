@@ -11,9 +11,10 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    supabase_uid = Column(String(255), unique=True, nullable=True)
     email = Column(String(255), unique=True, nullable=False)
     phone = Column(String(20), nullable=True)
-    password_hash = Column(Text, nullable=False)
+    password_hash = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 

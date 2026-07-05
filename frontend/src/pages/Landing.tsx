@@ -83,6 +83,9 @@ export default function Landing() {
       <div className="orb orb-gold w-[300px] h-[300px] top-1/2 -left-40 animate-float" />
       <div className="orb orb-amber w-[200px] h-[200px] bottom-0 right-1/4 animate-orb" />
 
+      {/* ── Dot grid overlay (hero only) ── */}
+      <div className="shape-grid opacity-60" />
+
       <header className="sticky top-0 z-50 border-b border-sand-200/60 bg-bg-warm/80 backdrop-blur-lg">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5 group">
@@ -104,6 +107,18 @@ export default function Landing() {
 
       {/* ── Hero ── */}
       <section className="relative pt-24 pb-20 px-6 overflow-hidden">
+        {/* Modern shapes */}
+        <div className="shape-ring w-16 h-16 top-20 left-[12%] text-terracotta-600/30 animate-float" style={{ animationDelay: '0.5s', animationDuration: '7s' }} />
+        <div className="shape-ring w-8 h-8 top-40 right-[15%] text-gold-600/25 animate-float" style={{ animationDelay: '1.2s', animationDuration: '5s' }} />
+        <div className="shape-dot w-2 h-2 top-32 right-[30%] bg-terracotta-400/40 animate-orb" />
+        <div className="shape-dot w-1.5 h-1.5 bottom-24 left-[20%] bg-gold-400/45 animate-orb" style={{ animationDelay: '0.8s' }} />
+        <div className="shape-cross w-6 h-6 top-1/3 left-[8%] text-terracotta-600/20 animate-float-slow" style={{ animationDelay: '0.3s' }} />
+        <div className="shape-cross w-4 h-4 bottom-32 right-[10%] text-gold-600/20 animate-float" style={{ animationDelay: '1.8s' }} />
+        <div className="shape-corner shape-corner-tl w-16 h-16 top-[15%] right-[22%] text-terracotta-600/35" />
+        <div className="shape-corner shape-corner-br w-12 h-12 bottom-[20%] left-[15%] text-gold-600/35" />
+        <div className="shape-dash w-20 top-[45%] left-[5%] bg-gradient-to-r from-terracotta-300/0 via-terracotta-300/40 to-terracotta-300/0 animate-float-slow" style={{ animationDelay: '0.6s' }} />
+        <div className="shape-dash w-16 bottom-[35%] right-[8%] bg-gradient-to-r from-gold-400/0 via-gold-400/40 to-gold-400/0 animate-float" style={{ animationDelay: '1.4s' }} />
+
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-terracotta-50 border border-terracotta-200/50 text-terracotta-600 text-xs font-medium mb-6">
             <Sparkles className="w-3.5 h-3.5" /> <span className="font-arabic">بوتات واتساب بالذكاء الاصطناعي</span> <span className="text-ash-300 mx-1">·</span> AI-Powered Platform
@@ -131,6 +146,15 @@ export default function Landing() {
       {/* ── Features — varied layout to avoid identical card grid ── */}
       <section className="py-28 px-6 relative" ref={featuresRef}>
         <div className="orb orb-gold w-[250px] h-[250px] -top-20 left-1/4 animate-float pointer-events-none" />
+        <div className="shape-ring w-24 h-24 top-1/4 right-[5%] text-terracotta-500/25 animate-float-slow" style={{ animationDelay: '0.7s' }} />
+        <div className="shape-dot w-3 h-3 top-[15%] left-[40%] bg-gold-400/40 animate-orb" style={{ animationDelay: '1s' }} />
+        <div className="shape-ring w-6 h-6 bottom-1/3 left-[6%] text-terracotta-600/30 animate-float" style={{ animationDelay: '0.4s', animationDuration: '6s' }} />
+        <div className="shape-corner shape-corner-tl w-14 h-14 top-[10%] left-[55%] text-terracotta-500/20" />
+        <div className="shape-corner shape-corner-br w-10 h-10 bottom-[15%] right-[35%] text-gold-600/20" />
+        <div className="shape-dash w-32 top-[60%] left-[3%] bg-gradient-to-r from-terracotta-300/0 via-terracotta-300/35 to-terracotta-300/0 animate-float" style={{ animationDelay: '0.8s', animationDuration: '7s' }} />
+        <div className="shape-dash w-24 top-[30%] right-[4%] bg-gradient-to-r from-gold-400/0 via-gold-400/35 to-gold-400/0 animate-float-slow" style={{ animationDelay: '1.1s' }} />
+        <div className="shape-dot w-1.5 h-1.5 top-[70%] right-[10%] bg-terracotta-400/40 animate-orb" style={{ animationDelay: '0.3s' }} />
+        <div className="shape-dot w-2 h-2 top-[20%] left-[50%] bg-gold-400/40 animate-orb" style={{ animationDelay: '1.5s' }} />
         <div className="max-w-6xl mx-auto relative">
           <div className={`text-center mb-16 transition-all duration-700 ${featuresRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
             <h2 className="font-display text-4xl md:text-5xl font-bold text-navy-900 mb-4">Everything you need</h2>
@@ -183,6 +207,17 @@ export default function Landing() {
       <section className="py-28 px-6 bg-navy-900 relative overflow-hidden">
         <div className="absolute inset-0 grain-bg" />
         <div className="orb orb-terracotta w-[400px] h-[400px] -bottom-40 -right-40 animate-float-slow pointer-events-none" />
+        {/* Dark mode shapes */}
+        <div className="shape-ring w-32 h-32 top-1/4 left-[3%] text-terracotta-700/20 animate-float-slow" style={{ animationDelay: '1s' }} />
+        <div className="shape-dot w-2 h-2 top-[60%] right-[25%] bg-terracotta-400/40 animate-orb" style={{ animationDelay: '0.5s' }} />
+        <div className="shape-cross w-8 h-8 bottom-1/4 right-[8%] text-terracotta-600/30 animate-float" style={{ animationDelay: '1.5s', animationDuration: '8s' }} />
+        <div className="shape-dot w-1.5 h-1.5 top-[20%] right-[40%] bg-gold-400/35 animate-orb" style={{ animationDelay: '1.2s' }} />
+        <div className="shape-corner shape-corner-tl w-20 h-20 top-[8%] right-[10%] text-terracotta-700/20" />
+        <div className="shape-corner shape-corner-br w-16 h-16 bottom-[10%] left-[12%] text-gold-600/25" />
+        <div className="shape-dash w-40 top-[55%] left-[2%] bg-gradient-to-r from-terracotta-400/0 via-terracotta-400/30 to-terracotta-400/0 animate-float" style={{ animationDelay: '0.5s' }} />
+        <div className="shape-dash w-32 top-[25%] right-[3%] bg-gradient-to-r from-gold-400/0 via-gold-400/30 to-gold-400/0 animate-float-slow" style={{ animationDelay: '1.8s' }} />
+        <div className="shape-ring w-10 h-10 top-[65%] left-[8%] text-terracotta-500/35 animate-orb" style={{ animationDelay: '0.9s' }} />
+        <div className="shape-dot w-1.5 h-1.5 bottom-[30%] right-[20%] bg-terracotta-400/40 animate-float" style={{ animationDelay: '0.2s' }} />
         <div className="max-w-4xl mx-auto relative" ref={stepsRef}>
           <div className={`text-center mb-16 transition-all duration-700 ${stepsRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
             <h2 className="font-display text-4xl md:text-5xl font-bold text-sand-50 mb-4">How it works</h2>
@@ -206,7 +241,7 @@ export default function Landing() {
                   )}
                 </div>
                 <h3 className="font-display text-lg font-semibold text-sand-50 mb-1">{title}</h3>
-                <p className="font-arabic text-sm text-terracotta-400/70 mb-2" dir="rtl">{titleAr}</p>
+                <p className="font-arabic text-sm text-terracotta-600/70 mb-2" dir="rtl">{titleAr}</p>
                 <p className="font-body text-sm text-ash-400 leading-relaxed">{desc}</p>
               </div>
             ))}
@@ -217,6 +252,14 @@ export default function Landing() {
       {/* ── Insights — reframed away from hero-metric ── */}
       <section className="py-28 px-6 relative overflow-hidden">
         <div className="orb orb-gold w-[250px] h-[250px] top-1/3 right-0 animate-orb pointer-events-none" />
+        <div className="shape-ring w-12 h-12 top-[30%] left-[8%] text-gold-600/25 animate-float" style={{ animationDelay: '0.6s', animationDuration: '7s' }} />
+        <div className="shape-dot w-2.5 h-2.5 bottom-1/4 left-[35%] bg-terracotta-300/40 animate-orb" style={{ animationDelay: '0.9s' }} />
+        <div className="shape-cross w-5 h-5 top-[20%] right-[12%] text-terracotta-600/35 animate-float-slow" style={{ animationDelay: '1.3s' }} />
+        <div className="shape-corner shape-corner-tl w-12 h-12 top-[40%] left-[4%] text-terracotta-500/20" />
+        <div className="shape-corner shape-corner-br w-10 h-10 bottom-[20%] right-[6%] text-gold-600/35" />
+        <div className="shape-dash w-24 top-[15%] left-[20%] bg-gradient-to-r from-terracotta-300/0 via-terracotta-300/35 to-terracotta-300/0 animate-float" style={{ animationDelay: '0.3s', animationDuration: '6s' }} />
+        <div className="shape-dash w-20 bottom-[30%] right-[12%] bg-gradient-to-r from-gold-400/0 via-gold-400/30 to-gold-400/0 animate-float-slow" style={{ animationDelay: '1.6s' }} />
+        <div className="shape-dot w-2 h-2 top-[60%] left-[20%] bg-terracotta-300/40 animate-orb" style={{ animationDelay: '0.4s' }} />
         <div className="max-w-4xl mx-auto text-center relative" ref={statsRef}>
           <div className={`transition-all duration-700 ${statsRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
             <h2 className="font-display text-4xl md:text-5xl font-bold text-navy-900 mb-4">Real-time insights at a glance</h2>
@@ -251,7 +294,11 @@ export default function Landing() {
       </section>
 
       {/* ── Brand Statement — concluding flourish ── */}
-      <section className="py-20 px-6 relative" ref={brandRef}>
+      <section className="py-20 px-6 relative overflow-hidden" ref={brandRef}>
+        <div className="shape-ring w-40 h-40 -top-20 -left-20 text-terracotta-500/20 animate-float-slow" style={{ animationDelay: '0.2s' }} />
+        <div className="shape-ring w-20 h-20 bottom-1/4 right-[10%] text-gold-600/20 animate-float" style={{ animationDelay: '1s', animationDuration: '6s' }} />
+        <div className="shape-dot w-3 h-3 top-[25%] right-[30%] bg-terracotta-400/35 animate-orb" style={{ animationDelay: '0.7s' }} />
+        <div className="shape-cross w-6 h-6 bottom-1/3 left-[12%] text-terracotta-600/20 animate-float" style={{ animationDelay: '1.5s' }} />
         <div className={`max-w-3xl mx-auto text-center transition-all duration-700 ${brandRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
           <div className="w-12 h-0.5 bg-terracotta-500/30 mx-auto mb-8" />
           <p className="font-arabic text-4xl md:text-5xl font-bold text-navy-900/10 leading-[1.2] mb-6 select-none" dir="rtl">
@@ -279,7 +326,10 @@ export default function Landing() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="pb-28 px-6" ref={ctaRef}>
+      <section className="pb-28 px-6 relative" ref={ctaRef}>
+        <div className="shape-ring w-14 h-14 top-1/4 left-[10%] text-terracotta-600/20 animate-float" style={{ animationDelay: '0.5s', animationDuration: '5s' }} />
+        <div className="shape-dot w-2 h-2 top-[60%] right-[20%] bg-gold-400/40 animate-orb" style={{ animationDelay: '1s' }} />
+        <div className="shape-corner shape-corner-br w-8 h-8 bottom-[30%] left-[15%] text-terracotta-500/20" />
         <div className={`max-w-3xl mx-auto text-center card p-14 relative overflow-hidden transition-all duration-700 ${ctaRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="absolute -top-16 -right-16 w-48 h-48 bg-terracotta-500/10 rounded-full pointer-events-none" />
           <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-gold-400/8 rounded-full pointer-events-none" />

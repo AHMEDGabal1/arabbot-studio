@@ -19,6 +19,7 @@ async def test_verify_webhook_get(client, db_session):
         name="Webhook Bot",
         channel="whatsapp",
         workspace_id=uuid.UUID("00000000-0000-0000-0000-000000000000"),
+        wa_verify_token="test_token",
     )
     db_session.add(bot)
     await db_session.flush()

@@ -1,5 +1,5 @@
+import json
 import logging
-import pickle
 from pathlib import Path
 
 import faiss
@@ -50,8 +50,8 @@ async def build_index(bot_id: str, texts: list[str]) -> None:
     index = faiss.IndexFlatL2(dimension)
     index.add(np.array(vectors).astype("float32"))
     faiss.write_index(index, str(_index_path(bot_id)))
-    with open(_store_path(bot_id), "wb") as f:
-        pickle.dump({"texts": texts}, f)
+    with open(_store_path(bot_id), "w", encoding="utf-8") as f:
+        json.dump({"texts": texts}, f)
 
 
 async def add_to_index(bot_id: str, texts: list[str]) -> None:
@@ -64,11 +64,11 @@ async def add_to_index(bot_id: str, texts: list[str]) -> None:
     index = faiss.read_index(str(_index_path(bot_id)))
     index.add(np.array(vectors).astype("float32"))
     faiss.write_index(index, str(_index_path(bot_id)))
-    with open(_store_path(bot_id), "rb") as f:
-        data = pickle.load(f)
+    with open(_store_path(bot_id), "r", encoding="utf-8") as f:
+        data = json.load(f)
     data["texts"].extend(texts)
-    with open(_store_path(bot_id), "wb") as f:
-        pickle.dump(data, f)
+    with open(_store_path(bot_id), "w", encoding="utf-8") as f:
+        json.dump(data, f)
 
 
 async def search(bot_id: str, query: str, k: int = 3) -> list[str]:
@@ -80,6 +80,6 @@ async def search(bot_id: str, query: str, k: int = 3) -> list[str]:
     query_vector = await embeddings.aembed_query(query)
     index = faiss.read_index(str(_index_path(bot_id)))
     distances, indices = index.search(np.array([query_vector]).astype("float32"), k)
-    with open(_store_path(bot_id), "rb") as f:
-        data = pickle.load(f)
+    with open(_store_path(bot_id), "r", encoding="utf-8") as f:
+        data = json.load(f)
     return [data["texts"][i] for i in indices[0] if i < len(data["texts"])]

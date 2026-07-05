@@ -2,8 +2,8 @@
 
 @theme {
   /* ── Warm Domain (Marketing / Light) ── */
-  --color-bg-warm: oklch(1 0 0);                   /* pure white — warmth lives in amber, not the surface */
-  --color-bg-card: oklch(0.97 0.004 55);            /* barely-warm white for cards */
+  --color-bg-warm: oklch(0.985 0.006 50);           /* whisper-warm — enough to kill sterile white, not enough to read as "cream" */
+  --color-bg-card: oklch(0.998 0.004 55);            /* near-white cards with a breath of warmth */
 
   /* Amber Primary — the voice (seed: oklch(0.65 0.146 60) → deepened to 0.58 with more saturation for confidence) */
   --color-terracotta-50: oklch(0.96 0.02 50);
@@ -75,10 +75,14 @@
 body {
   font-family: var(--font-body);
   background-color: var(--color-bg-warm);
+  background-image: radial-gradient(ellipse at 50% 0%, oklch(0.58 0.18 50 / 0.04) 0%, transparent 55%);
+  background-attachment: fixed;
   color: var(--color-ash-700);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* ponytail: fixed radial gradient for a hint of warmth at the top of every page */
 
 .font-display {
   font-family: var(--font-display);
@@ -371,6 +375,102 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-sand-300);
+}
+
+/* ── Modern Shapes ── */
+.shape-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid;
+  pointer-events: none;
+}
+
+.shape-dot {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.shape-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle, oklch(0.58 0.18 50 / 0.06) 1.5px, transparent 1.5px);
+  background-size: 48px 48px;
+}
+
+.shape-cross {
+  position: absolute;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shape-cross::before,
+.shape-cross::after {
+  content: '';
+  position: absolute;
+  background: currentColor;
+}
+
+.shape-cross::before {
+  width: 1px;
+  height: 100%;
+}
+
+.shape-cross::after {
+  width: 100%;
+  height: 1px;
+}
+
+.shape-corner {
+  position: absolute;
+  pointer-events: none;
+}
+
+.shape-corner::before,
+.shape-corner::after {
+  content: '';
+  position: absolute;
+  background: currentColor;
+}
+
+/* top-left L bracket */
+.shape-corner-tl::before {
+  width: 1px;
+  height: 60%;
+  top: 0;
+  left: 0;
+}
+
+.shape-corner-tl::after {
+  width: 60%;
+  height: 1px;
+  top: 0;
+  left: 0;
+}
+
+/* bottom-right L bracket */
+.shape-corner-br::before {
+  width: 1px;
+  height: 60%;
+  bottom: 0;
+  right: 0;
+}
+
+.shape-corner-br::after {
+  width: 60%;
+  height: 1px;
+  bottom: 0;
+  right: 0;
+}
+
+.shape-dash {
+  position: absolute;
+  height: 1px;
+  pointer-events: none;
 }
 
 /* ── Focus visible ── */

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import { login } from '../lib/api';
+import { supabase } from '../lib/supabase';
 
 export default function Login() {
   const { user, refresh } = useAuth();
@@ -18,11 +19,14 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      if (authError) throw authError;
+      const token = (await supabase.auth.getSession()).data.session?.access_token;
+      if (token) localStorage.setItem('token', token);
       await refresh();
       navigate('/dashboard');
-    } catch {
-      setError('Invalid email or password');
+    } catch (err: any) {
+      setError(err.message || 'Invalid email or password');
     } finally {
       setLoading(false);
     }

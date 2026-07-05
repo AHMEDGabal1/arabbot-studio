@@ -12,6 +12,7 @@ from src.deps import get_current_user
 from src.models import User, Workspace, WorkspaceMember
 from src.schemas import LoginRequest, RefreshRequest, RegisterRequest, TokenResponse, UserResponse
 from src.services.rate_limiter import rate_limit
+from src.services.supabase import get_supabase_admin
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -35,8 +36,17 @@ async def register(
     existing = await db.execute(select(User).where(User.email == body.email))
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
+    supabase_uid = None
+    supabase = get_supabase_admin()
+    if supabase:
+        try:
+            supabase_user = supabase.auth.admin.create_user({"email": body.email, "password": body.password, "email_confirm": True})
+            supabase_uid = supabase_user.user.id
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Supabase Auth error: {e}")
 
     user = User(
+        supabase_uid=supabase_uid,
         email=body.email,
         phone=body.phone,
         password_hash=bcrypt.hashpw(body.password.encode(), bcrypt.gensalt()).decode(),
@@ -64,7 +74,10 @@ async def login(
 ):
     result = await db.execute(select(User).where(User.email == body.email))
     user = result.scalar_one_or_none()
-    if not user or not bcrypt.checkpw(body.password.encode(), user.password_hash.encode()):
+    if not user or not user.password_hash:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+
+    if not bcrypt.checkpw(body.password.encode(), user.password_hash.encode()):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
     result = await db.execute(

@@ -20,7 +20,11 @@ class Settings(BaseSettings):
 
     sentry_dsn: str = ""
 
-    secret_key: str = "change-me-to-a-long-random-string"
+    supabase_url: str = ""
+    supabase_anon_key: str = ""
+    supabase_service_role_key: str = ""
+
+    secret_key: str
     environment: str = "development"
     base_url: str = "http://localhost:8000"
     ssl_certfile: str = ""

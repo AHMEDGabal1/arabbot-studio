@@ -1,6 +1,7 @@
 import json
 import logging
 import uuid
+from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -15,6 +16,7 @@ from src.config import settings
 from src.database import get_db
 from src.middleware.workspace import workspace_middleware
 from src.routers import analytics, auth, bots, conversations, handoffs, knowledge
+from src.services.storage import ensure_buckets
 from src.webhooks import whatsapp
 
 request_id_var: ContextVar[str] = ContextVar("request_id")
@@ -53,7 +55,13 @@ if settings.sentry_dsn:
 
 origins = [settings.base_url] if settings.environment == "production" else ["*"]
 
-app = FastAPI(title="ArabBot Studio", version="0.1.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await ensure_buckets()
+    yield
+
+
+app = FastAPI(title="ArabBot Studio", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

@@ -1,4 +1,20 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["./.opencode/plugins/ponytail.mjs"]
+  "plugin": [
+    "./.opencode/plugins/ponytail.mjs",
+    "opencode-supabase"
+  ],
+  "mcp": {
+    "supabase": {
+      "type": "remote",
+      "url": "https://mcp.supabase.com",
+      "enabled": true
+    }
+  },
+  "command": {
+    "impeccable": {
+      "template": "Load the impeccable skill via the `skill` tool, then handle the user's request. $ARGUMENTS",
+      "description": "Design, critique, refine frontend interfaces"
+    }
+  }
 }

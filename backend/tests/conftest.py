@@ -8,6 +8,8 @@ from src.main import app
 
 test_settings.environment = "test"
 test_settings.meta_app_secret = "test_secret"
+test_settings.supabase_url = ""
+test_settings.supabase_service_role_key = ""
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
 

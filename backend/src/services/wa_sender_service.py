@@ -32,8 +32,16 @@ async def send_wa_message(
     async with httpx.AsyncClient() as client:
         resp = await client.post(url, json=payload, headers=headers)
         if resp.status_code == 429 or (
-            resp.status_code >= 400 and resp.json().get("error", {}).get("code") in RETRY_ERROR_CODES
+            resp.status_code >= 400
         ):
+            is_retryable = False
+            try:
+                error_body = resp.json()
+                is_retryable = error_body.get("error", {}).get("code") in RETRY_ERROR_CODES
+            except Exception:
+                pass
+            if resp.status_code != 429 and not is_retryable:
+                resp.raise_for_status()
             if retry_count < len(RETRY_DELAYS):
                 delay = RETRY_DELAYS[retry_count]
                 logger.warning("Retrying WhatsApp API call in %ss (attempt %d)", delay, retry_count + 1)

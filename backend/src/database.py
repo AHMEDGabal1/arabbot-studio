@@ -3,7 +3,11 @@ from sqlalchemy.orm import DeclarativeBase
 
 from src.config import settings
 
-engine = create_async_engine(settings.database_url, echo=settings.environment == "development")
+is_supabase = "supabase.co" in settings.database_url or "pooler.supabase" in settings.database_url
+connect_args = {}
+if is_supabase:
+    connect_args = {"ssl": "require", "statement_cache_size": 0}
+engine = create_async_engine(settings.database_url, echo=settings.environment == "development", connect_args=connect_args)
 async_session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 

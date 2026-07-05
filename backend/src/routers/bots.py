@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -29,11 +31,11 @@ async def create_bot(
 
 @router.get("/{bot_id}", response_model=BotRead)
 async def get_bot(
-    bot_id: str,
+    bot_id: uuid.UUID,
     workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db),
 ):
-    bot = await bot_service.get_bot(db, bot_id, str(workspace.id))
+    bot = await bot_service.get_bot(db, str(bot_id), str(workspace.id))
     if not bot:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bot not found")
     return bot
@@ -41,12 +43,12 @@ async def get_bot(
 
 @router.patch("/{bot_id}", response_model=BotRead)
 async def update_bot(
-    bot_id: str,
+    bot_id: uuid.UUID,
     body: BotUpdate,
     workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db),
 ):
-    bot = await bot_service.update_bot(db, bot_id, str(workspace.id), body.model_dump(exclude_unset=True))
+    bot = await bot_service.update_bot(db, str(bot_id), str(workspace.id), body.model_dump(exclude_unset=True))
     if not bot:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bot not found")
     return bot
@@ -54,22 +56,22 @@ async def update_bot(
 
 @router.delete("/{bot_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_bot(
-    bot_id: str,
+    bot_id: uuid.UUID,
     workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db),
 ):
-    deleted = await bot_service.delete_bot(db, bot_id, str(workspace.id))
+    deleted = await bot_service.delete_bot(db, str(bot_id), str(workspace.id))
     if not deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bot not found")
 
 
 @router.post("/{bot_id}/activate", response_model=BotRead)
 async def activate_bot(
-    bot_id: str,
+    bot_id: uuid.UUID,
     workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db),
 ):
-    bot = await bot_service.update_bot(db, bot_id, str(workspace.id), {"is_active": True})
+    bot = await bot_service.update_bot(db, str(bot_id), str(workspace.id), {"is_active": True})
     if not bot:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bot not found")
     return bot
@@ -77,11 +79,11 @@ async def activate_bot(
 
 @router.post("/{bot_id}/deactivate", response_model=BotRead)
 async def deactivate_bot(
-    bot_id: str,
+    bot_id: uuid.UUID,
     workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db),
 ):
-    bot = await bot_service.update_bot(db, bot_id, str(workspace.id), {"is_active": False})
+    bot = await bot_service.update_bot(db, str(bot_id), str(workspace.id), {"is_active": False})
     if not bot:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bot not found")
     return bot
