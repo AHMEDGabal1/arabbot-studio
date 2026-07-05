@@ -20,7 +20,7 @@ export default function KnowledgeBase() {
       const [b, i] = await Promise.all([getBot(botId), listKnowledge(botId)]);
       setBot(b);
       setItems(i);
-    } catch {} finally { setLoading(false); }
+    } catch (e) { console.error(e); } finally { setLoading(false); }
   };
 
   useEffect(() => { fetch(); }, [botId]);
@@ -53,9 +53,8 @@ export default function KnowledgeBase() {
         title="Knowledge Base"
         desc={bot?.name ? `Knowledge items for ${bot.name}` : undefined}
         action={
-          <button onClick={() => setShowForm(!showForm)} className="btn btn-primary group relative overflow-hidden">
-            <span className="relative z-10 flex items-center gap-2"><Plus className="w-4 h-4" /> Add Item</span>
-            <span className="absolute inset-0 bg-gradient-to-r from-terracotta-500 to-terracotta-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <button onClick={() => setShowForm(!showForm)} className="btn btn-primary">
+            <Plus className="w-4 h-4" /> Add Item
           </button>
         }
       />

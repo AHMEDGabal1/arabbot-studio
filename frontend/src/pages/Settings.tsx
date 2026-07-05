@@ -7,7 +7,7 @@ export default function Settings() {
 
   return (
     <div className="max-w-lg mx-auto animate-fade-up">
-      <PageHeader title="Settings" desc="Manage your account and integrations" />
+      <PageHeader title="Settings" desc="Manage your account and integrations" descAr="إدارة الحساب والإعدادات" />
 
       <div className="card p-6 animate-scale-in">
         <h2 className="font-display text-base font-semibold text-navy-900 mb-4">Profile</h2>

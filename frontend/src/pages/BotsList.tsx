@@ -11,7 +11,7 @@ export default function BotsList() {
   const [loading, setLoading] = useState(true);
 
   const fetch = async () => {
-    try { setBots(await listBots()); } catch {} finally { setLoading(false); }
+    try { setBots(await listBots()); } catch (e) { console.error(e); } finally { setLoading(false); }
   };
 
   useEffect(() => { fetch(); }, []);
@@ -40,10 +40,10 @@ export default function BotsList() {
       <PageHeader
         title="Bots"
         desc="Manage your WhatsApp bots"
+        descAr="إدارة بوتات الواتساب"
         action={
-          <Link to="/bots/new" className="btn btn-primary group relative overflow-hidden">
-            <span className="relative z-10 flex items-center gap-2"><Plus className="w-4 h-4" /> New Bot</span>
-            <span className="absolute inset-0 bg-gradient-to-r from-terracotta-500 to-terracotta-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <Link to="/bots/new" className="btn btn-primary">
+            <Plus className="w-4 h-4" /> New Bot
           </Link>
         }
       />
@@ -53,6 +53,7 @@ export default function BotsList() {
           <div className="absolute -top-10 -right-10 w-32 h-32 bg-terracotta-500/5 rounded-full pointer-events-none" />
           <Bot className="w-12 h-12 text-ash-200 mx-auto mb-4" />
           <h2 className="font-display text-lg font-semibold text-navy-900 mb-2">No bots yet</h2>
+          <p className="font-arabic text-sm text-navy-400 mb-1" dir="rtl">لا يوجد بوتات بعد</p>
           <p className="font-body text-sm text-ash-400 mb-6">Create your first WhatsApp bot</p>
           <Link to="/bots/new" className="btn btn-primary"><Plus className="w-4 h-4" /> Create Bot</Link>
         </div>

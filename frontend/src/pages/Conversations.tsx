@@ -15,18 +15,18 @@ export default function Conversations() {
 
   useEffect(() => {
     (async () => {
-      try { setBots(await listBots()); } catch {} finally { setLoading(false); }
+      try { setBots(await listBots()); } catch (e) { console.error(e); } finally { setLoading(false); }
     })();
   }, []);
 
   useEffect(() => {
     if (!selectedBot) { setConversations([]); return; }
-    (async () => { try { setConversations(await listConversations(selectedBot)); } catch {} })();
+    (async () => { try { setConversations(await listConversations(selectedBot)); } catch (e) { console.error(e); } })();
   }, [selectedBot]);
 
   useEffect(() => {
     if (!selectedConv) { setMessages([]); return; }
-    (async () => { try { setMessages(await getConversationMessages(selectedConv)); } catch {} })();
+    (async () => { try { setMessages(await getConversationMessages(selectedConv)); } catch (e) { console.error(e); } })();
   }, [selectedConv]);
 
   if (loading) return (
@@ -39,7 +39,7 @@ export default function Conversations() {
 
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Conversations" desc="Browse and review bot conversations" />
+      <PageHeader title="Conversations" desc="Browse and review bot conversations" descAr="عرض المحادثات والردود" />
 
       <div className="mb-5">
         <select value={selectedBot} onChange={(e) => { setSelectedBot(e.target.value); setSelectedConv(null); }} className="input max-w-xs" aria-label="Select a bot">

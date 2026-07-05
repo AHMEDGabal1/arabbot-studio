@@ -15,7 +15,7 @@ export default function Analytics() {
 
   useEffect(() => {
     (async () => {
-      try { setBots(await listBots()); } catch {} finally { setLoading(false); }
+      try { setBots(await listBots()); } catch (e) { console.error(e); } finally { setLoading(false); }
     })();
   }, []);
 
@@ -23,7 +23,7 @@ export default function Analytics() {
     (async () => {
       try {
         setData(selectedBot ? await getBotAnalytics(selectedBot) : await getAnalyticsOverview());
-      } catch {}
+      } catch (e) { console.error(e); }
     })();
   }, [selectedBot]);
 
@@ -48,6 +48,7 @@ export default function Analytics() {
       <PageHeader
         title="Analytics"
         desc="Track bot performance and usage"
+        descAr="تحليلات أداء البوتات"
         action={
           <select value={selectedBot} onChange={(e) => setSelectedBot(e.target.value)} className="input max-w-[200px]" aria-label="Filter by bot">
             <option value="">All bots</option>

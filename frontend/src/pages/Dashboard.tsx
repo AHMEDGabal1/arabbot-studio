@@ -18,7 +18,7 @@ export default function Dashboard() {
         const [b, a] = await Promise.all([listBots(), getAnalyticsOverview()]);
         setBots(b);
         setStats(a);
-      } catch {} finally {
+      } catch (e) { console.error(e); } finally {
         setLoading(false);
       }
     })();
@@ -49,17 +49,15 @@ export default function Dashboard() {
       <PageHeader
         title="Dashboard"
         desc="Overview of your bot ecosystem"
+        descAr="نظرة عامة على بوتاتك"
         action={
-          <Link to="/bots/new" className="btn btn-primary group relative overflow-hidden">
-            <span className="relative z-10 flex items-center gap-2">
-              <Plus className="w-4 h-4" /> New Bot
-            </span>
-            <span className="absolute inset-0 bg-gradient-to-r from-terracotta-500 to-terracotta-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <Link to="/bots/new" className="btn btn-primary">
+            <Plus className="w-4 h-4" /> New Bot
           </Link>
         }
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 perspective">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10 perspective">
         {statCards.map((s, i) => (
           <div key={s.label} style={{ animationDelay: `${i * 0.08}s` }}>
             <StatCard {...s} />
@@ -72,7 +70,7 @@ export default function Dashboard() {
         <div className="relative px-6 py-5 border-b border-sand-100">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="font-display text-lg font-semibold text-navy-900">Recent Bots</h2>
+              <h2 className="font-display text-xl font-bold text-navy-900">Recent Bots</h2>
               <p className="font-body text-xs text-ash-400 mt-0.5">Your most recently created bots</p>
             </div>
             {bots.length > 0 && (

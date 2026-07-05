@@ -36,7 +36,7 @@ export default function BotEditor() {
             fallback_message: bot.fallback_message || '',
             human_handoff_enabled: bot.human_handoff_enabled,
           });
-        } catch {} finally {
+        } catch (e) { console.error(e); } finally {
           setLoading(false);
         }
       })();
@@ -90,7 +90,7 @@ export default function BotEditor() {
         <div>
           <label htmlFor="bot-name" className="block font-body text-sm font-medium text-ash-600 mb-1.5">Bot Name</label>
           <input
-            id="bot-name"
+            id="bot-name" autoComplete="off"
             required value={form.name} onChange={(e) => set('name', e.target.value)}
             className="input"
             placeholder="My Restaurant Bot"
@@ -161,10 +161,9 @@ export default function BotEditor() {
         <div className="flex items-center gap-3 pt-2">
           <button
             type="submit" disabled={saving}
-            className="btn btn-primary group relative overflow-hidden"
+            className="btn btn-primary"
           >
-            <span className="relative z-10">{saving ? 'Saving...' : isNew ? 'Create Bot' : 'Save Changes'}</span>
-            <span className="absolute inset-0 bg-gradient-to-r from-terracotta-500 to-terracotta-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            {saving ? 'Saving...' : isNew ? 'Create Bot' : 'Save Changes'}
           </button>
           <button
             type="button" onClick={() => navigate('/bots')}

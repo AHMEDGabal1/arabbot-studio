@@ -10,7 +10,7 @@ export default function Handoffs() {
   const [loading, setLoading] = useState(true);
 
   const fetch = async () => {
-    try { setHandoffs(await listHandoffs()); } catch {} finally { setLoading(false); }
+    try { setHandoffs(await listHandoffs()); } catch (e) { console.error(e); } finally { setLoading(false); }
   };
 
   useEffect(() => { fetch(); }, []);
@@ -44,7 +44,7 @@ export default function Handoffs() {
 
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Handoffs" desc="Manage human handoff requests" />
+      <PageHeader title="Handoffs" desc="Manage human handoff requests" descAr="إدارة طلبات التحويل للبشر" />
 
       <div className="space-y-6">
         {pending.length > 0 && (
@@ -58,7 +58,7 @@ export default function Handoffs() {
                     <p className="font-body text-sm text-ash-500 mt-0.5">{h.reason || 'No reason'}</p>
                     <p className="font-body text-xs text-ash-400 mt-1">{new Date(h.created_at).toLocaleString()}</p>
                   </div>
-                  <button onClick={() => resolve(h.id)} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 font-body text-sm font-medium rounded-lg hover:bg-emerald-100 transition-all duration-150 active:scale-90" aria-label="Resolve handoff">
+                  <button onClick={() => resolve(h.id)} className="flex items-center gap-1.5 px-3 py-1.5 bg-success-50 text-success-700 font-body text-sm font-medium rounded-lg hover:bg-success-700/10 transition-all duration-150 active:scale-90" aria-label="Resolve handoff">
                     <CheckCircle className="w-4 h-4" /> Resolve
                   </button>
                 </div>
@@ -78,7 +78,7 @@ export default function Handoffs() {
                     <p className="font-body text-sm text-ash-500 mt-0.5">{h.reason || 'No reason'}</p>
                     <p className="font-body text-xs text-ash-400 mt-1">Resolved {h.resolved_at ? new Date(h.resolved_at).toLocaleString() : ''}</p>
                   </div>
-                  <CheckCircle className="w-5 h-5 text-emerald-500" />
+                  <CheckCircle className="w-5 h-5 text-success-500" />
                 </div>
               ))}
             </div>

@@ -17,14 +17,14 @@ const styles: Record<string, { bg: string; iconBg: string; border: string }> = {
 export default function StatCard({ label, value, icon: Icon, accent = 'terracotta' }: Props) {
   const s = styles[accent];
   return (
-    <div className={`card card-hover p-5 animate-fade-up tilt-3d`}>
-      <div className={`absolute -top-6 -right-6 w-16 h-16 ${s.bg} rounded-full`} />
+    <div className={`card card-hover p-5 animate-fade-up`}>
+      <div className={`absolute -top-6 -right-6 w-20 h-20 ${s.bg} rounded-full blur-sm`} />
       <div className="relative flex items-start justify-between">
         <div>
           <p className="font-body text-xs font-medium text-ash-400 tracking-wider uppercase">{label}</p>
-          <p className="font-display text-3xl font-semibold text-navy-900 mt-1.5">{value}</p>
+          <p className="font-display text-3xl font-bold text-navy-900 mt-1.5">{value}</p>
         </div>
-        <div className={`w-10 h-10 ${s.iconBg} rounded-lg flex items-center justify-center shadow-sm`}>
+        <div className={`w-10 h-10 ${s.iconBg} rounded-xl flex items-center justify-center shadow-sm`}>
           <Icon className="w-5 h-5 text-white" />
         </div>
       </div>
