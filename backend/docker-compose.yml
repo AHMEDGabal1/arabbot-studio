@@ -37,6 +37,7 @@ services:
       DATABASE_URL: postgresql+asyncpg://user:pass@postgres:5432/arabbot
       REDIS_URL: redis://redis:6379/0
       ENVIRONMENT: production
+      SECRET_KEY: ${SECRET_KEY}
     depends_on:
       postgres:
         condition: service_healthy

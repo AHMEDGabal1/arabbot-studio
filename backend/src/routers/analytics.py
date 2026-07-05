@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -52,7 +54,7 @@ async def analytics_overview(
 
 @router.get("/bots/{bot_id}")
 async def bot_analytics(
-    bot_id: str,
+    bot_id: uuid.UUID,
     workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db),
 ):
@@ -65,7 +67,7 @@ async def bot_analytics(
     )
     bot = result.scalar_one_or_none()
     if not bot:
-        raise HTTPException(status_code=404, detail="Bot not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bot not found")
 
     conv_result = await db.execute(
         select(func.count(Conversation.id)).where(
@@ -83,7 +85,7 @@ async def bot_analytics(
     total_messages = msg_result.scalar() or 0
 
     return {
-        "bot_id": bot_id,
+        "bot_id": str(bot_id),
         "bot_name": bot.name,
         "total_conversations": total_conversations,
         "total_messages": total_messages,

@@ -15,6 +15,7 @@ class Workspace(Base):
     plan = Column(String(20), default="starter")
     monthly_message_limit = Column(Integer, default=1000)
     messages_used_this_month = Column(Integer, default=0)
+    last_message_month = Column(Integer, nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 

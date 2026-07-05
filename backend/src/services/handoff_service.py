@@ -32,10 +32,15 @@ async def get_pending_handoffs(db: AsyncSession, workspace_id: str) -> list[Hand
     return list(result.scalars().all())
 
 
-async def assign_handoff(db: AsyncSession, handoff_id: str, agent_id: str) -> HandoffQueue | None:
+async def assign_handoff(db: AsyncSession, handoff_id: str, agent_id: str, workspace_id: str) -> HandoffQueue | None:
+    subq = select(Conversation.id).join(Bot).where(Bot.workspace_id == uuid.UUID(workspace_id))
     result = await db.execute(
         update(HandoffQueue)
-        .where(HandoffQueue.id == uuid.UUID(handoff_id), HandoffQueue.resolved_at.is_(None))
+        .where(
+            HandoffQueue.id == uuid.UUID(handoff_id),
+            HandoffQueue.resolved_at.is_(None),
+            HandoffQueue.conversation_id.in_(subq),
+        )
         .values(assigned_to=uuid.UUID(agent_id))
         .returning(HandoffQueue)
     )
@@ -43,10 +48,15 @@ async def assign_handoff(db: AsyncSession, handoff_id: str, agent_id: str) -> Ha
     return result.scalar_one_or_none()
 
 
-async def resolve_handoff(db: AsyncSession, handoff_id: str) -> HandoffQueue | None:
+async def resolve_handoff(db: AsyncSession, handoff_id: str, workspace_id: str) -> HandoffQueue | None:
+    subq = select(Conversation.id).join(Bot).where(Bot.workspace_id == uuid.UUID(workspace_id))
     result = await db.execute(
         update(HandoffQueue)
-        .where(HandoffQueue.id == uuid.UUID(handoff_id), HandoffQueue.resolved_at.is_(None))
+        .where(
+            HandoffQueue.id == uuid.UUID(handoff_id),
+            HandoffQueue.resolved_at.is_(None),
+            HandoffQueue.conversation_id.in_(subq),
+        )
         .values(resolved_at=datetime.now(timezone.utc))
         .returning(HandoffQueue)
     )

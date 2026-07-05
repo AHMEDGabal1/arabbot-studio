@@ -83,6 +83,11 @@ async def process_incoming(bot: Bot, msg: dict):
 
             ws = await db.get(Workspace, bot.workspace_id)
             if ws:
+                now = datetime.now(timezone.utc)
+                month_key = now.year * 12 + now.month
+                if ws.last_message_month is None or month_key != ws.last_message_month:
+                    ws.messages_used_this_month = 0
+                    ws.last_message_month = month_key
                 ws.messages_used_this_month = (ws.messages_used_this_month or 0) + 1
 
             knowledge_items = await search_knowledge(str(bot.id), text)

@@ -1,12 +1,13 @@
 import math
 import time
-from collections import defaultdict
+from collections import OrderedDict
 
 from fastapi import HTTPException, Request, status
 
 from src.config import settings
 
-_store: dict[str, list[float]] = defaultdict(list)
+_store: dict[str, list[float]] = {}
+_MAX_KEYS = 10000
 
 try:
     import redis.asyncio as aioredis
@@ -46,6 +47,10 @@ def rate_limit(max_requests: int = 10, window_seconds: int = 60, key_prefix: str
                 detail="Too many requests, try again later",
             )
         now = time.time()
+        if key not in _store:
+            if len(_store) >= _MAX_KEYS:
+                _store.pop(next(iter(_store)))
+            _store[key] = []
         timestamps = _store[key]
         while timestamps and timestamps[0] < now - window_seconds:
             timestamps.pop(0)

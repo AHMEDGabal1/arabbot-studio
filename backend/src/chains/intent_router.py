@@ -42,4 +42,4 @@ async def classify_intent(text: str) -> IntentResult:
     intent = response.content.strip().upper()
     if intent not in INTENTS:
         intent = "OTHER"
-    return IntentResult(intent=intent, confidence=0.85)
+    return IntentResult(intent=intent, confidence=0.0)

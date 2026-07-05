@@ -41,7 +41,7 @@ async def get_conversation(
 ):
     result = await db.execute(
         select(Conversation).join(Bot).where(
-            Conversation.id == uuid.UUID(conv_id),
+            Conversation.id == conv_id,
             Bot.workspace_id == workspace.id,
             Conversation.deleted_at.is_(None),
         )
@@ -60,7 +60,7 @@ async def get_messages(
 ):
     result = await db.execute(
         select(Conversation).join(Bot).where(
-            Conversation.id == uuid.UUID(conv_id),
+            Conversation.id == conv_id,
             Bot.workspace_id == workspace.id,
             Conversation.deleted_at.is_(None),
         )
@@ -69,4 +69,4 @@ async def get_messages(
     if not conv:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
 
-    return await conversation_service.get_conversation_messages(db, conv_id)
+    return await conversation_service.get_conversation_messages(db, str(conv_id))
