@@ -19,5 +19,10 @@ class HandoffAssign(BaseModel):
     assigned_to: str
 
 
-class HandoffResolve(BaseModel):
-    pass
+class HandoffList(BaseModel):
+    items: list[HandoffRead]
+    total: int
+    limit: int
+    offset: int
+
+

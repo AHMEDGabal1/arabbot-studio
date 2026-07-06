@@ -49,7 +49,7 @@ async def delete_item(db: AsyncSession, item_id: str, bot_id: str) -> bool:
 
 
 async def reindex(db: AsyncSession, bot_id: str) -> None:
-    items = await get_items(db, bot_id)
+    items, _ = await get_items(db, bot_id)
     texts = [f"{item.question or ''} {item.answer}" for item in items]
     if texts:
         await build_index(bot_id, texts)

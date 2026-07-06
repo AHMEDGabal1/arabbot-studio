@@ -12,7 +12,6 @@ faiss-cpu==1.9.0
 python-jose[cryptography]==3.3.0
 python-multipart==0.0.17
 
-aiofiles==24.1.0
 
 supabase==2.31.0
 sentry-sdk==2.20.0

@@ -30,3 +30,12 @@ class KnowledgeItemRead(BaseModel):
         if isinstance(v, str):
             return json.loads(v)
         return v
+
+
+class KnowledgeList(BaseModel):
+    items: list[KnowledgeItemRead]
+    total: int
+    limit: int
+    offset: int
+
+

@@ -12,6 +12,13 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
+    if (!err.response) {
+      // Network error (offline, timeout, DNS failure)
+      console.error('Network error:', err.message);
+      const networkError = new Error('Unable to connect to the server. Please check your internet connection.');
+      (networkError as any).isNetworkError = true;
+      return Promise.reject(networkError);
+    }
     if (err.response?.status === 401 && !window.location.pathname.startsWith('/login')) {
       localStorage.removeItem('token');
       window.location.href = '/login';

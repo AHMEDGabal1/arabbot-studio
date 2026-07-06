@@ -38,3 +38,9 @@ shell commands, and other important information, read the current plan:
 - Quickstart: specs/001-arabbot-mvp/quickstart.md
 - Contracts: specs/001-arabbot-mvp/contracts/
 <!-- SPECKIT END -->
+
+## Documentation Standards (documentation-and-adrs)
+- **ADRs Required**: Any significant architectural decision, new major dependency, or systemic change MUST be documented in a new Architecture Decision Record in `docs/decisions/`.
+- **Comment the *Why***: Inline code comments must explain *why* something is done, not *what* is done. Assume the reader knows Python/TypeScript; explain the business logic or edge case being mitigated.
+- **No Dead Code**: Do not leave commented-out code blocks or floating "TODOs" without immediate action plans. Delete old code; Git retains the history.
+- **Gotchas**: Explicitly document known gotchas inline (e.g., `IMPORTANT: This must be called before...`) to prevent future agents/developers from making the same mistake.

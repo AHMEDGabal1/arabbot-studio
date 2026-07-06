@@ -11,7 +11,7 @@ class KnowledgeItem(Base):
     __tablename__ = "knowledge_items"
 
     id = Column(Uuid, primary_key=True, default=uuid.uuid4)
-    bot_id = Column(Uuid, ForeignKey("bots.id", ondelete="CASCADE"), nullable=False)
+    bot_id = Column(Uuid, ForeignKey("bots.id", ondelete="CASCADE"), nullable=False, index=True)
     type = Column(Text, nullable=False)
     question = Column(Text, nullable=True)
     answer = Column(Text, nullable=False)

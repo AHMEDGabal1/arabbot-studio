@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.database import get_db
 from src.deps import get_current_workspace
 from src.models import Workspace
-from src.schemas import KnowledgeItemCreate, KnowledgeItemRead
+from src.schemas import KnowledgeItemCreate, KnowledgeItemRead, KnowledgeList
 from src.services import bot_service, knowledge_service
 
 router = APIRouter(prefix="/bots/{bot_id}/knowledge", tags=["knowledge"])
@@ -19,7 +19,7 @@ async def _verify_bot_ownership(bot_id: uuid.UUID, workspace: Workspace, db: Asy
     return bot
 
 
-@router.get("")
+@router.get("", response_model=KnowledgeList)
 async def list_knowledge(
     bot_id: uuid.UUID,
     limit: int = Query(50, ge=1, le=200),
@@ -29,7 +29,7 @@ async def list_knowledge(
 ):
     await _verify_bot_ownership(bot_id, workspace, db)
     items, total = await knowledge_service.get_items(db, str(bot_id), limit, offset)
-    return {"items": [KnowledgeItemRead.model_validate(item) for item in items], "total": total, "limit": limit, "offset": offset}
+    return KnowledgeList(items=[KnowledgeItemRead.model_validate(item) for item in items], total=total, limit=limit, offset=offset)
 
 
 @router.post("", response_model=KnowledgeItemRead, status_code=status.HTTP_201_CREATED)

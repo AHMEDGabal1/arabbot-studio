@@ -14,6 +14,7 @@ import Conversations from './pages/Conversations';
 import Analytics from './pages/Analytics';
 import Handoffs from './pages/Handoffs';
 import Settings from './pages/Settings';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
+          <ErrorBoundary>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
@@ -39,6 +41,7 @@ export default function App() {
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          </ErrorBoundary>
           <Toaster
             position="top-left"
             toastOptions={{

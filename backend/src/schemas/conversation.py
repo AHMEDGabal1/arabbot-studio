@@ -36,3 +36,10 @@ class MessageRead(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class MessageList(BaseModel):
+    items: list[MessageRead]
+    total: int
+    limit: int
+    offset: int

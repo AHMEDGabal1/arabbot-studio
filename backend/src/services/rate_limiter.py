@@ -1,5 +1,6 @@
 import math
 import time
+import uuid
 from collections import OrderedDict
 
 from fastapi import HTTPException, Request, status
@@ -26,7 +27,7 @@ async def _check_redis(key: str, max_requests: int, window_seconds: int) -> bool
         now = math.ceil(time.time())
         window_start = now - window_seconds
         await pipe.zremrangebyscore(key, 0, window_start)
-        await pipe.zadd(key, {str(now): now})
+        await pipe.zadd(key, {f"{now}:{uuid.uuid4()}": now})
         await pipe.expire(key, window_seconds)
         await pipe.zcard(key)
         results = await pipe.execute()

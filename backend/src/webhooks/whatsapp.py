@@ -7,6 +7,7 @@ import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
+from fastapi.responses import PlainTextResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -63,7 +64,7 @@ async def verify_webhook(bot_id: uuid.UUID, request: Request, db: AsyncSession =
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bot not found")
 
     if mode == "subscribe" and token and token == bot.wa_verify_token:
-        return int(challenge)
+        return PlainTextResponse(content=challenge)
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Verification failed")
 
 
@@ -81,6 +82,13 @@ async def process_incoming(bot: Bot, msg: dict):
             user_msg = await conversation_service.add_message(
                 db, str(conversation.id), "user", text, raw_content=text,
             )
+
+            # Skip AI processing if conversation is handed off to human
+            if conversation.status == "handed_off":
+                await db.commit()
+                logger.info("Skipping AI: conversation %s is handed off", conversation.id)
+                return
+
 
             ws = await db.get(Workspace, bot.workspace_id)
             if ws:

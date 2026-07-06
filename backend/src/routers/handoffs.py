@@ -6,13 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.database import get_db
 from src.deps import get_current_workspace
 from src.models import Workspace
-from src.schemas import HandoffAssign, HandoffRead
+from src.schemas import HandoffAssign, HandoffList, HandoffRead
 from src.services import handoff_service
 
 router = APIRouter(prefix="/handoffs", tags=["handoffs"])
 
 
-@router.get("")
+@router.get("", response_model=HandoffList)
 async def list_handoffs(
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
@@ -20,7 +20,7 @@ async def list_handoffs(
     db: AsyncSession = Depends(get_db),
 ):
     items, total = await handoff_service.get_pending_handoffs(db, str(workspace.id), limit, offset)
-    return {"items": [HandoffRead.model_validate(h) for h in items], "total": total, "limit": limit, "offset": offset}
+    return HandoffList(items=[HandoffRead.model_validate(h) for h in items], total=total, limit=limit, offset=offset)
 
 
 @router.patch("/{handoff_id}/assign", response_model=HandoffRead)

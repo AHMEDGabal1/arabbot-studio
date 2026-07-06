@@ -15,11 +15,17 @@ INDEX_DIR = Path("data/faiss_indices")
 INDEX_DIR.mkdir(parents=True, exist_ok=True)
 
 _embeddings = None
-_locks: dict[str, asyncio.Lock] = {}
+from collections import OrderedDict
+_locks: OrderedDict[str, asyncio.Lock] = OrderedDict()
+_MAX_LOCKS = 1000
 
 
 def _get_lock(bot_id: str) -> asyncio.Lock:
-    if bot_id not in _locks:
+    if bot_id in _locks:
+        _locks.move_to_end(bot_id)
+    else:
+        if len(_locks) >= _MAX_LOCKS:
+            _locks.popitem(last=False)
         _locks[bot_id] = asyncio.Lock()
     return _locks[bot_id]
 
@@ -81,14 +87,15 @@ async def add_to_index(bot_id: str, texts: list[str]) -> None:
 
 
 async def search(bot_id: str, query: str, k: int = 3) -> list[str]:
-    if not index_exists(bot_id):
-        return []
-    embeddings = _get_embeddings()
-    if embeddings is None:
-        return []
-    query_vector = await embeddings.aembed_query(query)
-    index = faiss.read_index(str(_index_path(bot_id)))
-    distances, indices = index.search(np.array([query_vector]).astype("float32"), k)
-    with open(_store_path(bot_id), "r", encoding="utf-8") as f:
-        data = json.load(f)
-    return [data["texts"][i] for i in indices[0] if i < len(data["texts"])]
+    async with _get_lock(bot_id):
+        if not index_exists(bot_id):
+            return []
+        embeddings = _get_embeddings()
+        if embeddings is None:
+            return []
+        query_vector = await embeddings.aembed_query(query)
+        index = faiss.read_index(str(_index_path(bot_id)))
+        distances, indices = index.search(np.array([query_vector]).astype("float32"), k)
+        with open(_store_path(bot_id), "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return [data["texts"][i] for i in indices[0] if i < len(data["texts"])]

@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 
 class BotCreate(BaseModel):
@@ -14,6 +14,13 @@ class BotCreate(BaseModel):
     wa_access_token: str | None = None
     wa_verify_token: str | None = None
 
+    @field_validator("wa_access_token", "wa_verify_token")
+    @classmethod
+    def token_must_not_be_empty(cls, v: str | None) -> str | None:
+        if v is not None and not v.strip():
+            raise ValueError("Token cannot be empty or whitespace")
+        return v
+
 
 class BotUpdate(BaseModel):
     name: str | None = None
@@ -25,6 +32,13 @@ class BotUpdate(BaseModel):
     wa_access_token: str | None = None
     wa_verify_token: str | None = None
     human_handoff_enabled: bool | None = None
+
+    @field_validator("wa_access_token", "wa_verify_token")
+    @classmethod
+    def token_must_not_be_empty(cls, v: str | None) -> str | None:
+        if v is not None and not v.strip():
+            raise ValueError("Token cannot be empty or whitespace")
+        return v
 
 
 class BotRead(BaseModel):
@@ -40,3 +54,12 @@ class BotRead(BaseModel):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class BotList(BaseModel):
+    items: list[BotRead]
+    total: int
+    limit: int
+    offset: int
+
+

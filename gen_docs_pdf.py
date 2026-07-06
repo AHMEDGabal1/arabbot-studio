@@ -368,8 +368,25 @@ def main() -> None:
     log.info("Resolving fonts for %s ...", platform.system())
     fonts = _resolve_fonts()
 
-    log.info("Reading %s ...", README.name)
-    source = README.read_text(encoding="utf-8")
+    root = Path(__file__).resolve().parent
+    sources = []
+    
+    # Core docs
+    for doc in ["README.md", "AGENTS.md", "DESIGN.md"]:
+        p = root / doc
+        if p.exists():
+            log.info("Reading %s ...", p.name)
+            sources.append(f"# {doc}\n\n" + p.read_text(encoding="utf-8"))
+
+    # ADRs
+    decisions_dir = root / "docs" / "decisions"
+    if decisions_dir.exists():
+        adrs = sorted(decisions_dir.glob("*.md"))
+        for p in adrs:
+            log.info("Reading %s ...", p.name)
+            sources.append(f"\n\n---\n\n" + p.read_text(encoding="utf-8"))
+
+    source = "\n\n".join(sources)
 
     log.info("Building PDF ...")
     pdf = DocPDF(fonts)

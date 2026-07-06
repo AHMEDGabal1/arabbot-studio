@@ -85,8 +85,14 @@ export interface Handoff {
 }
 
 export interface Analytics {
+  total_bots?: number;
+  active_bots?: number;
   total_conversations: number;
-  total_messages: number;
+  total_messages?: number;
+  messages_this_month?: number;
+  messages_limit?: number;
   intent_breakdown: Record<string, number>;
-  messages_over_time: { date: string; count: number }[];
+  avg_response_time_ms?: number;
+  bot_id?: string;
+  bot_name?: string;
 }

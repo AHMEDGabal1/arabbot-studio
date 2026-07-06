@@ -67,6 +67,9 @@
 
 ## Architecture
 
+> 💡 **Architecture Decision Records (ADRs):** We document all major technical choices (Frameworks, Databases, LLMs, Isolation logic) in the `docs/decisions/` directory. See [docs/decisions/](file:///c:/Users/tuf/Desktop/systemAI%20bot/docs/decisions/) for detailed rationale on why we chose our tech stack.
+
+
 ```mermaid
 graph TB
     subgraph "📱 WhatsApp"
@@ -587,6 +590,13 @@ cd frontend
 npm run build
 # Serve dist/ with any static server
 ```
+
+---
+
+## Contributing
+
+We welcome contributions! Please review our [AGENTS.md](file:///c:/Users/tuf/Desktop/systemAI%20bot/AGENTS.md) file for documentation standards. 
+If you are making a significant architectural change or introducing a new dependency, please write a new Architecture Decision Record (ADR) in the `docs/decisions/` folder outlining the rationale.
 
 ---
 

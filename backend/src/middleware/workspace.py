@@ -1,5 +1,4 @@
 import logging
-import uuid
 
 from fastapi import Request
 from jose import JWTError, jwt

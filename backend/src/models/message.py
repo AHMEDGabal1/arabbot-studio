@@ -11,7 +11,7 @@ class Message(Base):
     __tablename__ = "messages"
 
     id = Column(Uuid, primary_key=True, default=uuid.uuid4)
-    conversation_id = Column(Uuid, ForeignKey("conversations.id"), nullable=False)
+    conversation_id = Column(Uuid, ForeignKey("conversations.id"), nullable=False, index=True)
     role = Column(String(20), nullable=False)
     content = Column(Text, nullable=False)
     raw_content = Column(Text, nullable=True)

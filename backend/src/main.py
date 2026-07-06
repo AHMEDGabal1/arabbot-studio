@@ -7,7 +7,9 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 import sentry_sdk
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sqlalchemy import text
@@ -64,6 +66,33 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="ArabBot Studio", version="0.1.0", lifespan=lifespan)
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    code_map = {
+        400: "BAD_REQUEST",
+        401: "UNAUTHORIZED",
+        403: "FORBIDDEN",
+        404: "NOT_FOUND",
+        409: "CONFLICT",
+        413: "PAYLOAD_TOO_LARGE",
+        422: "VALIDATION_ERROR",
+        429: "RATE_LIMITED",
+    }
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": {"code": code_map.get(exc.status_code, "SERVER_ERROR"), "message": exc.detail}},
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={"error": {"code": "VALIDATION_ERROR", "message": "Invalid request data", "details": {"errors": exc.errors()}}},
+    )
+
 
 app.add_middleware(
     CORSMiddleware,

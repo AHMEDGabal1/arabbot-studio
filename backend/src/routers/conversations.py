@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.database import get_db
 from src.deps import get_current_workspace
 from src.models import Bot, Conversation, Workspace
-from src.schemas import ConversationList, ConversationRead, MessageRead
+from src.schemas import ConversationList, ConversationRead, MessageList, MessageRead
 from src.services import conversation_service
 
 router = APIRouter(prefix="/conversations", tags=["conversations"])
@@ -52,7 +52,7 @@ async def get_conversation(
     return conv
 
 
-@router.get("/{conv_id}/messages")
+@router.get("/{conv_id}/messages", response_model=MessageList)
 async def get_messages(
     conv_id: uuid.UUID,
     limit: int = Query(100, ge=1, le=500),
@@ -72,4 +72,4 @@ async def get_messages(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
 
     items, total = await conversation_service.get_conversation_messages(db, str(conv_id), limit, offset)
-    return {"items": [MessageRead.model_validate(m) for m in items], "total": total, "limit": limit, "offset": offset}
+    return MessageList(items=[MessageRead.model_validate(m) for m in items], total=total, limit=limit, offset=offset)
