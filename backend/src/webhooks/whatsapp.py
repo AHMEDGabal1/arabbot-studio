@@ -4,6 +4,7 @@ import json
 import logging
 import time
 import uuid
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from sqlalchemy import select
@@ -138,7 +139,12 @@ async def receive_webhook(
     db: AsyncSession = Depends(get_db),
     _=Depends(rate_limit(30, 60, "webhook:")),
 ):
+    content_length = request.headers.get("content-length", "0")
+    if content_length.isdigit() and int(content_length) > 100_000:
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="Payload too large")
     body = await request.body()
+    if len(body) > 100_000:
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="Payload too large")
     signature = request.headers.get("X-Hub-Signature-256", "")
 
     if not verify_signature(body, signature, settings.meta_app_secret):

@@ -40,7 +40,7 @@ async def test_list_knowledge(auth_bot):
     })
     resp = await client.get(f"/api/v1/bots/{bot_id}/knowledge")
     assert resp.status_code == 200
-    assert len(resp.json()) == 1
+    assert len(resp.json()["items"]) == 1
 
 
 @pytest.mark.asyncio

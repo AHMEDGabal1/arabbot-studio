@@ -41,14 +41,34 @@ async def analytics_overview(
     )
     total_conversations = conv_result.scalar() or 0
 
+    intent_result = await db.execute(
+        select(Message.intent_detected, func.count(Message.id)).where(
+            Message.intent_detected.isnot(None),
+            Message.conversation_id.in_(
+                select(Conversation.id).join(Bot).where(Bot.workspace_id == workspace.id)
+            ),
+        ).group_by(Message.intent_detected)
+    )
+    intent_breakdown = dict(intent_result.all())
+
+    avg_ms_result = await db.execute(
+        select(func.avg(Message.processing_ms)).where(
+            Message.processing_ms.isnot(None),
+            Message.conversation_id.in_(
+                select(Conversation.id).join(Bot).where(Bot.workspace_id == workspace.id)
+            ),
+        )
+    )
+    avg_response_time_ms = round(avg_ms_result.scalar() or 0)
+
     return {
         "total_bots": total_bots,
         "active_bots": active_bots,
         "total_conversations": total_conversations,
         "messages_this_month": workspace.messages_used_this_month,
         "messages_limit": workspace.monthly_message_limit,
-        "intent_breakdown": {},
-        "avg_response_time_ms": 0,
+        "intent_breakdown": intent_breakdown,
+        "avg_response_time_ms": avg_response_time_ms,
     }
 
 

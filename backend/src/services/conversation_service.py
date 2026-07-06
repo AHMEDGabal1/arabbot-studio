@@ -81,10 +81,15 @@ async def list_conversations(
     return items, total
 
 
-async def get_conversation_messages(db: AsyncSession, conversation_id: str) -> list[Message]:
+async def get_conversation_messages(db: AsyncSession, conversation_id: str, limit: int = 100, offset: int = 0) -> tuple[list[Message], int]:
     result = await db.execute(
         select(Message)
         .where(Message.conversation_id == uuid.UUID(conversation_id))
         .order_by(Message.created_at.asc())
+        .offset(offset).limit(limit)
     )
-    return list(result.scalars().all())
+    items = list(result.scalars().all())
+    count_result = await db.execute(
+        select(func.count(Message.id)).where(Message.conversation_id == uuid.UUID(conversation_id))
+    )
+    return items, count_result.scalar() or 0

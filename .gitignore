@@ -12,3 +12,6 @@ node_modules/
 .opencode/package-lock.json
 certs/
 logs/
+backend/data/
+frontend-vite-err.log
+frontend-vite.log

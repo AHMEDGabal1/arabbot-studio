@@ -19,6 +19,10 @@
   understands العامية المصرية, connects to your business tools, works 24/7.</i>
 </p>
 
+## Recent Updates
+
+- **Production Readiness Audit v3 (July 2026):** All critical vulnerabilities (RCE, broken webhooks, hardcoded credentials) and high-severity issues (workspace isolation, concurrent vector store writes) have been patched. The project has been fully audited and is now conditionally ready for production deployment.
+
 ---
 
 ## Features

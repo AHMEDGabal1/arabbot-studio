@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import get_db
@@ -19,15 +19,17 @@ async def _verify_bot_ownership(bot_id: uuid.UUID, workspace: Workspace, db: Asy
     return bot
 
 
-@router.get("", response_model=list[KnowledgeItemRead])
+@router.get("")
 async def list_knowledge(
     bot_id: uuid.UUID,
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
     workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db),
 ):
     await _verify_bot_ownership(bot_id, workspace, db)
-    items = await knowledge_service.get_items(db, str(bot_id))
-    return [KnowledgeItemRead.model_validate(item) for item in items]
+    items, total = await knowledge_service.get_items(db, str(bot_id), limit, offset)
+    return {"items": [KnowledgeItemRead.model_validate(item) for item in items], "total": total, "limit": limit, "offset": offset}
 
 
 @router.post("", response_model=KnowledgeItemRead, status_code=status.HTTP_201_CREATED)

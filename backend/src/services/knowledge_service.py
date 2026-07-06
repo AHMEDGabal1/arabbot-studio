@@ -1,7 +1,7 @@
 import json
 import uuid
 
-from sqlalchemy import select, delete
+from sqlalchemy import func, select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import KnowledgeItem
@@ -26,11 +26,15 @@ async def create_item(db: AsyncSession, bot_id: str, data: dict) -> KnowledgeIte
     return item
 
 
-async def get_items(db: AsyncSession, bot_id: str) -> list[KnowledgeItem]:
+async def get_items(db: AsyncSession, bot_id: str, limit: int = 50, offset: int = 0) -> tuple[list[KnowledgeItem], int]:
     result = await db.execute(
-        select(KnowledgeItem).where(KnowledgeItem.bot_id == uuid.UUID(bot_id)).order_by(KnowledgeItem.created_at.desc())
+        select(KnowledgeItem).where(KnowledgeItem.bot_id == uuid.UUID(bot_id)).order_by(KnowledgeItem.created_at.desc()).offset(offset).limit(limit)
     )
-    return list(result.scalars().all())
+    items = list(result.scalars().all())
+    count_result = await db.execute(
+        select(func.count(KnowledgeItem.id)).where(KnowledgeItem.bot_id == uuid.UUID(bot_id))
+    )
+    return items, count_result.scalar() or 0
 
 
 async def delete_item(db: AsyncSession, item_id: str, bot_id: str) -> bool:

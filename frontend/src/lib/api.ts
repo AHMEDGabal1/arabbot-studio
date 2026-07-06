@@ -23,12 +23,14 @@ api.interceptors.response.use(
 export async function login(email: string, password: string) {
   const { data } = await api.post('/auth/login', { email, password });
   localStorage.setItem('token', data.access_token);
+  localStorage.setItem('refresh_token', data.refresh_token);
   return data;
 }
 
 export async function register(email: string, password: string, name: string, phone?: string) {
   const { data } = await api.post('/auth/register', { email, password, name, phone });
   localStorage.setItem('token', data.access_token);
+  localStorage.setItem('refresh_token', data.refresh_token);
   return data;
 }
 
@@ -37,9 +39,9 @@ export async function getMe(): Promise<User> {
   return data;
 }
 
-export async function listBots(): Promise<Bot[]> {
-  const { data } = await api.get('/bots');
-  return data;
+export async function listBots(limit = 200, offset = 0): Promise<Bot[]> {
+  const { data } = await api.get('/bots', { params: { limit, offset } });
+  return data.items ?? data;
 }
 
 export async function getBot(id: string): Promise<Bot> {
@@ -71,9 +73,9 @@ export async function deactivateBot(id: string): Promise<Bot> {
   return data;
 }
 
-export async function listKnowledge(botId: string): Promise<KnowledgeItem[]> {
-  const { data } = await api.get(`/bots/${botId}/knowledge`);
-  return data;
+export async function listKnowledge(botId: string, limit = 200, offset = 0): Promise<KnowledgeItem[]> {
+  const { data } = await api.get(`/bots/${botId}/knowledge`, { params: { limit, offset } });
+  return data.items ?? data;
 }
 
 export async function createKnowledge(botId: string, body: KnowledgeItemCreate): Promise<KnowledgeItem> {
@@ -90,14 +92,14 @@ export async function listConversations(botId: string): Promise<Conversation[]> 
   return data.items ?? data;
 }
 
-export async function getConversationMessages(conversationId: string): Promise<Message[]> {
-  const { data } = await api.get(`/conversations/${conversationId}/messages`);
-  return data;
+export async function getConversationMessages(conversationId: string, limit = 500, offset = 0): Promise<Message[]> {
+  const { data } = await api.get(`/conversations/${conversationId}/messages`, { params: { limit, offset } });
+  return data.items ?? data;
 }
 
-export async function listHandoffs(): Promise<Handoff[]> {
-  const { data } = await api.get('/handoffs');
-  return data;
+export async function listHandoffs(limit = 200, offset = 0): Promise<Handoff[]> {
+  const { data } = await api.get('/handoffs', { params: { limit, offset } });
+  return data.items ?? data;
 }
 
 export async function resolveHandoff(id: string): Promise<void> {

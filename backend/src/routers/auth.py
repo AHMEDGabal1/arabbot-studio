@@ -17,11 +17,12 @@ from src.services.supabase import get_supabase_admin
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-def _create_token(user_id: str, workspace_id: str) -> str:
-    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.jwt_expire_minutes)
+def _create_token(user_id: str, workspace_id: str, minutes: int | None = None, token_type: str = "access") -> str:
+    expire = datetime.now(timezone.utc) + timedelta(minutes=minutes or settings.jwt_expire_minutes)
     payload = {
         "sub": user_id,
         "workspace_id": workspace_id,
+        "type": token_type,
         "exp": expire,
     }
     return jwt.encode(payload, settings.secret_key, algorithm=settings.jwt_algorithm)
@@ -62,8 +63,9 @@ async def register(
     db.add(membership)
     await db.flush()
 
-    token = _create_token(str(user.id), str(workspace.id))
-    return TokenResponse(access_token=token, workspace_id=str(workspace.id), user_id=str(user.id))
+    access = _create_token(str(user.id), str(workspace.id))
+    refresh = _create_token(str(user.id), str(workspace.id), minutes=10080, token_type="refresh")
+    return TokenResponse(access_token=access, refresh_token=refresh, workspace_id=str(workspace.id), user_id=str(user.id))
 
 
 @router.post("/login")
@@ -87,8 +89,9 @@ async def login(
     if not membership:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No workspace found")
 
-    token = _create_token(str(user.id), str(membership.workspace_id))
-    return TokenResponse(access_token=token, workspace_id=str(membership.workspace_id), user_id=str(user.id))
+    access = _create_token(str(user.id), str(membership.workspace_id))
+    refresh = _create_token(str(user.id), str(membership.workspace_id), minutes=10080, token_type="refresh")
+    return TokenResponse(access_token=access, refresh_token=refresh, workspace_id=str(membership.workspace_id), user_id=str(user.id))
 
 
 @router.post("/refresh")
@@ -97,7 +100,8 @@ async def refresh(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
         payload = jwt.decode(body.refresh_token, settings.secret_key, algorithms=[settings.jwt_algorithm])
         user_id = payload.get("sub")
         workspace_id = payload.get("workspace_id")
-        if not user_id or not workspace_id:
+        token_type = payload.get("type")
+        if not user_id or not workspace_id or token_type != "refresh":
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")

@@ -52,9 +52,11 @@ async def get_conversation(
     return conv
 
 
-@router.get("/{conv_id}/messages", response_model=list[MessageRead])
+@router.get("/{conv_id}/messages")
 async def get_messages(
     conv_id: uuid.UUID,
+    limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0),
     workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db),
 ):
@@ -69,4 +71,5 @@ async def get_messages(
     if not conv:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
 
-    return await conversation_service.get_conversation_messages(db, str(conv_id))
+    items, total = await conversation_service.get_conversation_messages(db, str(conv_id), limit, offset)
+    return {"items": [MessageRead.model_validate(m) for m in items], "total": total, "limit": limit, "offset": offset}

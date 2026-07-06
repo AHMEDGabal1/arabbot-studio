@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import get_db
@@ -12,12 +12,15 @@ from src.services import bot_service
 router = APIRouter(prefix="/bots", tags=["bots"])
 
 
-@router.get("", response_model=list[BotRead])
+@router.get("")
 async def list_bots(
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
     workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db),
 ):
-    return await bot_service.list_bots(db, str(workspace.id))
+    items, total = await bot_service.list_bots(db, str(workspace.id), limit, offset)
+    return {"items": [BotRead.model_validate(b) for b in items], "total": total, "limit": limit, "offset": offset}
 
 
 @router.post("", response_model=BotRead, status_code=status.HTTP_201_CREATED)

@@ -35,7 +35,7 @@ async def test_list_bots(auth_client):
     await auth_client.post("/api/v1/bots", json={"name": "Bot 2", "channel": "whatsapp"})
     resp = await auth_client.get("/api/v1/bots")
     assert resp.status_code == 200
-    assert len(resp.json()) == 2
+    assert len(resp.json()["items"]) == 2
 
 
 @pytest.mark.asyncio

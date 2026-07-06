@@ -7,7 +7,7 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 import sentry_sdk
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sqlalchemy import text
@@ -16,6 +16,7 @@ from src.config import settings
 from src.database import get_db
 from src.middleware.workspace import workspace_middleware
 from src.routers import analytics, auth, bots, conversations, handoffs, knowledge
+from src.services.rate_limiter import _redis as redis_client
 from src.services.storage import ensure_buckets
 from src.webhooks import whatsapp
 
@@ -29,6 +30,7 @@ class JSONFormatter(logging.Formatter):
             "level": record.levelname,
             "logger": record.name,
             "msg": record.getMessage(),
+            "request_id": request_id_var.get(""),
         }
         if hasattr(record, "extra"):
             log.update(record.extra)
@@ -78,6 +80,9 @@ async def add_request_id(request: Request, call_next):
     request_id_var.set(request_id)
     response = await call_next(request)
     response.headers["X-Request-ID"] = request_id
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Content-Security-Policy"] = "default-src 'self'"
     return response
 
 
@@ -103,7 +108,16 @@ async def health():
             break
     except Exception:
         db_ok = False
+    redis_ok = False
+    if redis_client is not None:
+        try:
+            await redis_client.ping()
+            redis_ok = True
+        except Exception:
+            redis_ok = False
+    status = "ok" if (db_ok and (redis_client is None or redis_ok)) else "degraded"
     return {
-        "status": "ok" if db_ok else "degraded",
+        "status": status,
         "database": "up" if db_ok else "down",
+        "redis": "up" if redis_ok else ("disabled" if redis_client is None else "down"),
     }

@@ -1,11 +1,25 @@
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { motion, type Variants } from 'framer-motion';
 import { getAnalyticsOverview, getBotAnalytics, listBots } from '../lib/api';
 import type { Analytics as AnalyticsType, Bot } from '../types';
 import PageHeader from '../components/PageHeader';
 import Skeleton from '../components/Skeleton';
 
 const COLORS = ['#c1694f', '#e9b741', '#2a3050', '#6b6360', '#d4836a', '#b8891e', '#4a5278', '#8a8079', '#e09d87'];
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+};
 
 export default function Analytics() {
   const [bots, setBots] = useState<Bot[]>([]);
@@ -44,60 +58,64 @@ export default function Analytics() {
   ];
 
   return (
-    <div className="animate-fade-up">
-      <PageHeader
-        title="Analytics"
-        desc="Track bot performance and usage"
-        descAr="تحليلات أداء البوتات"
-        action={
-          <select value={selectedBot} onChange={(e) => setSelectedBot(e.target.value)} className="input max-w-[200px]" aria-label="Filter by bot">
-            <option value="">All bots</option>
-            {bots.map((bot) => <option key={bot.id} value={bot.id}>{bot.name}</option>)}
-          </select>
-        }
-      />
+    <motion.div initial="hidden" animate="visible" variants={containerVariants}>
+      <motion.div variants={itemVariants}>
+        <PageHeader
+          title="Analytics"
+          desc="Track bot performance and usage"
+          descAr="تحليلات أداء البوتات"
+          action={
+            <select value={selectedBot} onChange={(e) => setSelectedBot(e.target.value)} className="input max-w-[200px]" aria-label="Filter by bot">
+              <option value="">All bots</option>
+              {bots.map((bot) => <option key={bot.id} value={bot.id}>{bot.name}</option>)}
+            </select>
+          }
+        />
+      </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        {overviewCards.map(({ label, value }, i) => (
-          <div key={label} className="card card-hover p-5 animate-fade-up" style={{ animationDelay: `${i * 0.08}s` }}>
-            <div className="absolute -top-6 -right-6 w-16 h-16 bg-terracotta-500/5 rounded-full" />
-            <p className="font-body text-xs font-medium text-ash-400 tracking-wider uppercase">{label}</p>
-            <p className="font-display text-3xl font-semibold text-navy-900 mt-1.5">{value}</p>
-          </div>
+      <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+        {overviewCards.map(({ label, value }) => (
+          <motion.div key={label} whileHover={{ y: -4, scale: 1.02 }} className="card relative overflow-hidden p-6 bg-white/70 backdrop-blur-md border border-white/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] group">
+            <div className="absolute -top-8 -right-8 w-24 h-24 bg-terracotta-500/10 rounded-full blur-xl transition-transform duration-500 group-hover:scale-150 group-hover:bg-terracotta-500/15" />
+            <div className="relative z-10">
+              <p className="font-body text-xs font-semibold text-ash-500 tracking-wider uppercase mb-1">{label}</p>
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="font-display text-4xl font-bold text-navy-900 tracking-tight">{value}</motion.p>
+            </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {data?.messages_over_time && data.messages_over_time.length > 0 && (
-          <div className="card p-6 animate-scale-in">
-            <h2 className="font-display text-base font-semibold text-navy-900 mb-4">Messages Over Time</h2>
+          <motion.div whileHover={{ y: -2 }} className="card p-6 bg-white/60 backdrop-blur-md shadow-sm">
+            <h2 className="font-display text-lg font-bold text-navy-900 mb-6">Messages Over Time</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={data.messages_over_time}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#dfdbd7" />
-                <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#8a8079' }} />
-                <YAxis tick={{ fontSize: 12, fill: '#8a8079' }} />
-                <Tooltip contentStyle={{ background: '#1a1f2e', border: 'none', borderRadius: '8px', color: '#f5ede6', fontSize: '13px' }} />
-                <Bar dataKey="count" fill="#c1694f" radius={[4, 4, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#dfdbd7" opacity={0.5} />
+                <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#8a8079' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 12, fill: '#8a8079' }} axisLine={false} tickLine={false} />
+                <Tooltip cursor={{ fill: 'rgba(193, 105, 79, 0.05)' }} contentStyle={{ background: '#1a1f2e', border: 'none', borderRadius: '12px', color: '#f5ede6', fontSize: '13px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }} />
+                <Bar dataKey="count" fill="#c1694f" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </motion.div>
         )}
 
         {intentData.length > 0 && (
-          <div className="card p-6 animate-scale-in">
-            <h2 className="font-display text-base font-semibold text-navy-900 mb-4">Intent Distribution</h2>
+          <motion.div whileHover={{ y: -2 }} className="card p-6 bg-white/60 backdrop-blur-md shadow-sm">
+            <h2 className="font-display text-lg font-bold text-navy-900 mb-6">Intent Distribution</h2>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
-                <Pie data={intentData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
+                <Pie data={intentData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={110} innerRadius={70} stroke="none" labelLine={false}>
                   {intentData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
-                <Tooltip contentStyle={{ background: '#1a1f2e', border: 'none', borderRadius: '8px', color: '#f5ede6', fontSize: '13px' }} />
-                <Legend formatter={(value: string) => <span style={{ color: '#6b6360', fontSize: '12px' }}>{value}</span>} />
+                <Tooltip contentStyle={{ background: '#1a1f2e', border: 'none', borderRadius: '12px', color: '#f5ede6', fontSize: '13px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }} />
+                <Legend formatter={(value: string) => <span style={{ color: '#4a5278', fontSize: '13px', fontWeight: 500 }}>{value}</span>} />
               </PieChart>
             </ResponsiveContainer>
-          </div>
+          </motion.div>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

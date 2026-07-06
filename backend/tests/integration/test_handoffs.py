@@ -17,4 +17,4 @@ async def test_handoff_flow(client):
 
     resp = await client.get("/api/v1/handoffs")
     assert resp.status_code == 200
-    assert resp.json() == []
+    assert resp.json()["items"] == []

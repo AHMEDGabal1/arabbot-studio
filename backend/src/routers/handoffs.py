@@ -1,24 +1,26 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import get_db
 from src.deps import get_current_workspace
 from src.models import Workspace
-from src.schemas import HandoffAssign, HandoffRead, HandoffResolve
+from src.schemas import HandoffAssign, HandoffRead
 from src.services import handoff_service
 
 router = APIRouter(prefix="/handoffs", tags=["handoffs"])
 
 
-@router.get("", response_model=list[HandoffRead])
+@router.get("")
 async def list_handoffs(
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
     workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db),
 ):
-    handoffs = await handoff_service.get_pending_handoffs(db, str(workspace.id))
-    return [HandoffRead.model_validate(h) for h in handoffs]
+    items, total = await handoff_service.get_pending_handoffs(db, str(workspace.id), limit, offset)
+    return {"items": [HandoffRead.model_validate(h) for h in items], "total": total, "limit": limit, "offset": offset}
 
 
 @router.patch("/{handoff_id}/assign", response_model=HandoffRead)

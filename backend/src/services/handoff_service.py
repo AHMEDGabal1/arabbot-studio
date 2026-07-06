@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import Bot, Conversation, HandoffQueue
@@ -18,18 +18,28 @@ async def create_handoff(db: AsyncSession, conversation_id: str, reason: str | N
     return handoff
 
 
-async def get_pending_handoffs(db: AsyncSession, workspace_id: str) -> list[HandoffQueue]:
-    result = await db.execute(
+async def get_pending_handoffs(db: AsyncSession, workspace_id: str, limit: int = 50, offset: int = 0) -> tuple[list[HandoffQueue], int]:
+    base_where = (
+        Bot.workspace_id == uuid.UUID(workspace_id),
+        HandoffQueue.resolved_at.is_(None),
+    )
+    query = (
         select(HandoffQueue)
         .join(Conversation, HandoffQueue.conversation_id == Conversation.id)
         .join(Bot, Conversation.bot_id == Bot.id)
-        .where(
-            Bot.workspace_id == uuid.UUID(workspace_id),
-            HandoffQueue.resolved_at.is_(None),
-        )
+        .where(*base_where)
         .order_by(HandoffQueue.created_at.asc())
+        .offset(offset).limit(limit)
     )
-    return list(result.scalars().all())
+    result = await db.execute(query)
+    items = list(result.scalars().all())
+    count_result = await db.execute(
+        select(func.count(HandoffQueue.id))
+        .join(Conversation, HandoffQueue.conversation_id == Conversation.id)
+        .join(Bot, Conversation.bot_id == Bot.id)
+        .where(*base_where)
+    )
+    return items, count_result.scalar() or 0
 
 
 async def assign_handoff(db: AsyncSession, handoff_id: str, agent_id: str, workspace_id: str) -> HandoffQueue | None:

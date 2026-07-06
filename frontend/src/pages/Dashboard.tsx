@@ -1,11 +1,25 @@
 import { useEffect, useState } from 'react';
 import { Bot, MessageCircle, Handshake, MessageSquare, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { motion, type Variants } from 'framer-motion';
 import { listBots, getAnalyticsOverview } from '../lib/api';
 import type { Analytics, Bot as BotType } from '../types';
 import PageHeader from '../components/PageHeader';
 import StatCard from '../components/StatCard';
 import Skeleton from '../components/Skeleton';
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+};
 
 export default function Dashboard() {
   const [bots, setBots] = useState<BotType[]>([]);
@@ -45,28 +59,28 @@ export default function Dashboard() {
   ];
 
   return (
-    <div>
-      <PageHeader
-        title="Dashboard"
-        desc="Overview of your bot ecosystem"
-        descAr="نظرة عامة على بوتاتك"
-        action={
-          <Link to="/bots/new" className="btn btn-primary">
-            <Plus className="w-4 h-4" /> New Bot
-          </Link>
-        }
-      />
+    <motion.div initial="hidden" animate="visible" variants={containerVariants}>
+      <motion.div variants={itemVariants}>
+        <PageHeader
+          title="Dashboard"
+          desc="Overview of your bot ecosystem"
+          descAr="نظرة عامة على بوتاتك"
+          action={
+            <Link to="/bots/new" className="btn btn-primary">
+              <Plus className="w-4 h-4" /> New Bot
+            </Link>
+          }
+        />
+      </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10 perspective">
-        {statCards.map((s, i) => (
-          <div key={s.label} style={{ animationDelay: `${i * 0.08}s` }}>
-            <StatCard {...s} />
-          </div>
+      <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10 perspective">
+        {statCards.map((s) => (
+          <StatCard key={s.label} {...s} />
         ))}
-      </div>
+      </motion.div>
 
-      <div className="card animate-scale-in">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-terracotta-500/5 rounded-bl-full pointer-events-none" />
+      <motion.div variants={itemVariants} className="card relative overflow-hidden group bg-white/60 backdrop-blur-md shadow-sm hover:shadow-md transition-shadow">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-terracotta-500/5 rounded-bl-full pointer-events-none transition-transform duration-500 group-hover:scale-150" />
         <div className="relative px-6 py-5 border-b border-sand-100">
           <div className="flex items-center justify-between">
             <div>
@@ -92,32 +106,33 @@ export default function Dashboard() {
               </p>
             </div>
           ) : (
-            <div className="space-y-1">
+            <motion.div variants={containerVariants} className="space-y-1">
               {bots.slice(0, 5).map((bot) => (
-                <Link
-                  key={bot.id}
-                  to={`/bots/${bot.id}`}
-                  className="group flex items-center justify-between px-3 py-3 rounded-lg hover:bg-sand-50 transition-all duration-150"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2 h-2 rounded-full ${bot.is_active ? 'bg-emerald-500 shadow-sm shadow-emerald-500/30' : 'bg-ash-300'}`} />
-                    <div>
-                      <span className="font-body text-sm font-medium text-navy-900 group-hover:text-terracotta-500 transition-colors">{bot.name}</span>
-                      <span className="ml-2 font-body text-xs text-ash-400 uppercase">{bot.channel}</span>
+                <motion.div key={bot.id} variants={itemVariants} whileHover={{ x: 4 }} className="group/item rounded-lg">
+                  <Link
+                    to={`/bots/${bot.id}`}
+                    className="flex items-center justify-between px-3 py-3 rounded-lg hover:bg-sand-50/50 transition-all duration-150"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${bot.is_active ? 'bg-emerald-500 shadow-sm shadow-emerald-500/30' : 'bg-ash-300'}`} />
+                      <div>
+                        <span className="font-body text-sm font-medium text-navy-900 group-hover/item:text-terracotta-500 transition-colors">{bot.name}</span>
+                        <span className="ml-2 font-body text-xs text-ash-400 uppercase">{bot.channel}</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-body text-xs text-ash-400">{bot.language}</span>
-                    <span className={`badge ${bot.is_active ? 'badge-active' : 'badge-inactive'}`}>
-                      {bot.is_active ? 'Active' : 'Inactive'}
-                    </span>
-                  </div>
-                </Link>
+                    <div className="flex items-center gap-3">
+                      <span className="font-body text-xs text-ash-400">{bot.language}</span>
+                      <span className={`badge ${bot.is_active ? 'badge-active' : 'badge-inactive'}`}>
+                        {bot.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                  </Link>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
