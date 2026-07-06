@@ -18,7 +18,7 @@ async def _ensure_bucket(name: str, config: dict):
         await asyncio.to_thread(supabase.storage.get_bucket, name)
     except Exception:
         try:
-            await asyncio.to_thread(supabase.storage.create_bucket, name, config)
+            await asyncio.to_thread(supabase.storage.create_bucket, id=name, name=name, options=config)
         except Exception as e:
             logger.warning("Failed to create bucket %s: %s", name, e)
 

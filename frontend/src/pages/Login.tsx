@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import { login as apiLogin } from '../lib/api';
+import { extractErrorMessage } from '../lib/utils';
 
 export default function Login() {
   const { user, refresh } = useAuth();
@@ -22,7 +23,7 @@ export default function Login() {
       await refresh();
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err?.response?.data?.detail || err.message || 'Invalid email or password');
+      setError(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }

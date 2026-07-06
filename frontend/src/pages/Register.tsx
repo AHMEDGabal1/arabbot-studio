@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import { register } from '../lib/api';
+import { extractErrorMessage } from '../lib/utils';
 
 export default function Register() {
   const { user, refresh } = useAuth();
@@ -24,7 +25,7 @@ export default function Register() {
       await refresh();
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Registration failed');
+      setError(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }
