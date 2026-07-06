@@ -37,8 +37,8 @@ export default function Login() {
         <div className="absolute top-1/3 right-1/4 w-32 h-32 border border-terracotta-500/10 rotate-[30deg]" />
         <div className="relative z-10 text-center">
           <div className="inline-flex items-center justify-center mb-6">
-            <div className="w-16 h-16 rounded-xl bg-terracotta-500 flex items-center justify-center shadow-lg shadow-terracotta-500/20 overflow-hidden">
-              <img src="/logo.svg" alt="ArabBot" className="w-10 h-10 object-contain brightness-0 invert" />
+            <div className="w-16 h-16 rounded-xl flex items-center justify-center shadow-lg shadow-terracotta-500/20 overflow-hidden">
+              <img src="/logo.jpg" alt="ArabBot" className="w-full h-full object-cover" />
             </div>
           </div>
           <h1 className="font-display text-5xl font-bold text-sand-50 mb-4">ArabBot Studio</h1>
@@ -54,8 +54,8 @@ export default function Login() {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-bg-warm">
         <div className="w-full max-w-sm animate-fade-up">
           <div className="mb-10">
-            <div className="lg:hidden inline-flex items-center justify-center w-12 h-12 rounded-full bg-navy-800 mb-4 overflow-hidden">
-              <img src="/logo.svg" alt="ArabBot" className="w-7 h-7 object-contain" />
+            <div className="lg:hidden inline-flex items-center justify-center w-12 h-12 rounded-full mb-4 overflow-hidden">
+              <img src="/logo.jpg" alt="ArabBot" className="w-full h-full object-cover" />
             </div>
             <h2 className="font-display text-2xl font-semibold text-navy-900 mb-1">Welcome back</h2>
             <p className="font-arabic text-sm text-navy-400 mb-1" dir="rtl">سجل دخولك لإدارة البوتات</p>

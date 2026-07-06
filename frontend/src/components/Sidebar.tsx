@@ -20,8 +20,8 @@ export default function Sidebar() {
     <aside className="fixed top-0 left-0 z-40 h-screen w-[--sidebar-width] card-glass flex flex-col bg-navy-900/95 backdrop-blur-md">
       <div className="relative px-5 h-20 flex items-center">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-terracotta-500 flex items-center justify-center overflow-hidden shadow-sm shadow-terracotta-500/20">
-            <img src="/logo.svg" alt="ArabBot" className="w-6 h-6 object-contain brightness-0 invert" />
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center overflow-hidden shadow-sm shadow-terracotta-500/20">
+            <img src="/logo.jpg" alt="ArabBot" className="w-full h-full object-cover" />
           </div>
           <div>
             <span className="font-display text-lg font-bold tracking-tight text-sand-50">ArabBot</span>

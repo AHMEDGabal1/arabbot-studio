@@ -103,8 +103,8 @@ export default function Landing() {
       <header className="sticky top-0 z-50 border-b border-sand-200/60 bg-bg-warm/80 backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-lg bg-navy-900 flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-110 shadow-md">
-              <img src="/logo.svg" alt="ArabBot" className="w-5 h-5 object-contain" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden shadow-sm shadow-terracotta-500/20">
+              <img src="/logo.jpg" alt="ArabBot" className="w-full h-full object-cover" />
             </div>
             <span className="font-display text-lg font-bold text-navy-900 tracking-tight">ArabBot</span>
           </Link>
@@ -338,8 +338,8 @@ export default function Landing() {
       <footer className="border-t border-sand-200/60 py-12 px-6 bg-white/50 backdrop-blur-md">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-navy-900 flex items-center justify-center overflow-hidden">
-              <img src="/logo.svg" alt="ArabBot" className="w-5 h-5 object-contain brightness-0 invert" />
+            <div className="w-8 h-8 rounded flex items-center justify-center overflow-hidden">
+              <img src="/logo.jpg" alt="ArabBot" className="w-full h-full object-cover" />
             </div>
             <div>
               <span className="font-display text-base font-bold text-navy-900">ArabBot Studio</span>
