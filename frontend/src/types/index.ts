@@ -2,6 +2,7 @@ export interface User {
   id: string;
   email: string;
   phone?: string;
+  is_superadmin?: boolean;
 }
 
 export interface Workspace {
@@ -93,6 +94,7 @@ export interface Analytics {
   messages_limit?: number;
   intent_breakdown: Record<string, number>;
   avg_response_time_ms?: number;
+  messages_over_time?: { date: string; count: number }[];
   bot_id?: string;
   bot_name?: string;
 }

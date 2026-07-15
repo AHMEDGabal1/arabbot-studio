@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, DateTime, String, Text, Uuid
+from sqlalchemy import Column, DateTime, String, Text, Uuid, Boolean
 from sqlalchemy.orm import relationship
 
 from src.database import Base
@@ -15,7 +15,9 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False)
     phone = Column(String(20), nullable=True)
     password_hash = Column(Text, nullable=True)
+    is_superadmin = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     workspaces = relationship("WorkspaceMember", back_populates="user")
+

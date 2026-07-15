@@ -29,9 +29,11 @@ export default function Dashboard() {
   useEffect(() => {
     (async () => {
       try {
-        const [b, a] = await Promise.all([listBots(), getAnalyticsOverview()]);
-        setBots(b);
-        setStats(a);
+        const [botsResult, analyticsResult] = await Promise.allSettled([listBots(), getAnalyticsOverview()]);
+        if (botsResult.status === 'fulfilled') setBots(botsResult.value);
+        else console.error('Failed to load bots:', botsResult.reason);
+        if (analyticsResult.status === 'fulfilled') setStats(analyticsResult.value);
+        else console.error('Failed to load analytics:', analyticsResult.reason);
       } catch (e) { console.error(e); } finally {
         setLoading(false);
       }

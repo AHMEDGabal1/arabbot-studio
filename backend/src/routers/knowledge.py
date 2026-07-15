@@ -41,6 +41,7 @@ async def create_knowledge(
 ):
     await _verify_bot_ownership(bot_id, workspace, db)
     item = await knowledge_service.create_item(db, str(bot_id), body.model_dump())
+    await db.commit()
     return KnowledgeItemRead.model_validate(item)
 
 
@@ -55,6 +56,7 @@ async def delete_knowledge(
     deleted = await knowledge_service.delete_item(db, str(item_id), str(bot_id))
     if not deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Knowledge item not found")
+    await db.commit()
 
 
 @router.post("/reindex", status_code=status.HTTP_200_OK)

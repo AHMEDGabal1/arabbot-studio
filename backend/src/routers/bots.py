@@ -29,7 +29,9 @@ async def create_bot(
     workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db),
 ):
-    return await bot_service.create_bot(db, str(workspace.id), body.model_dump())
+    bot = await bot_service.create_bot(db, str(workspace.id), body.model_dump())
+    await db.commit()
+    return bot
 
 
 @router.get("/{bot_id}", response_model=BotRead)
@@ -54,6 +56,7 @@ async def update_bot(
     bot = await bot_service.update_bot(db, str(bot_id), str(workspace.id), body.model_dump(exclude_unset=True))
     if not bot:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bot not found")
+    await db.commit()
     return bot
 
 
@@ -66,6 +69,7 @@ async def delete_bot(
     deleted = await bot_service.delete_bot(db, str(bot_id), str(workspace.id))
     if not deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bot not found")
+    await db.commit()
 
 
 @router.post("/{bot_id}/activate", response_model=BotRead)
@@ -77,6 +81,7 @@ async def activate_bot(
     bot = await bot_service.update_bot(db, str(bot_id), str(workspace.id), {"is_active": True})
     if not bot:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bot not found")
+    await db.commit()
     return bot
 
 
@@ -89,4 +94,5 @@ async def deactivate_bot(
     bot = await bot_service.update_bot(db, str(bot_id), str(workspace.id), {"is_active": False})
     if not bot:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bot not found")
+    await db.commit()
     return bot

@@ -147,6 +147,10 @@ async def receive_webhook(
     db: AsyncSession = Depends(get_db),
     _=Depends(rate_limit(30, 60, "webhook:")),
 ):
+    if not settings.meta_app_secret:
+        logger.error("META_APP_SECRET is not configured — rejecting webhook")
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Webhook not configured")
+
     content_length = request.headers.get("content-length", "0")
     if content_length.isdigit() and int(content_length) > 100_000:
         raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="Payload too large")

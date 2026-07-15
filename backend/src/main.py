@@ -17,7 +17,7 @@ from sqlalchemy import text
 from src.config import settings
 from src.database import get_db
 from src.middleware.workspace import workspace_middleware
-from src.routers import analytics, auth, bots, conversations, handoffs, knowledge
+from src.routers import analytics, auth, bots, conversations, handoffs, knowledge, admin
 from src.services.rate_limiter import _redis as redis_client
 from src.services.storage import ensure_buckets
 from src.webhooks import whatsapp
@@ -124,6 +124,7 @@ app.include_router(conversations.router, prefix="/api/v1")
 app.include_router(knowledge.router, prefix="/api/v1")
 app.include_router(handoffs.router, prefix="/api/v1")
 app.include_router(analytics.router, prefix="/api/v1")
+app.include_router(admin.router, prefix="/api/v1")
 app.include_router(whatsapp.router)
 
 

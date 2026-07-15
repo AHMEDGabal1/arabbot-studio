@@ -28,16 +28,26 @@ export default function KnowledgeBase() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!botId) return;
-    await createKnowledge(botId, form);
-    setForm({ answer: '' });
-    setShowForm(false);
-    await fetch();
+    try {
+      await createKnowledge(botId, form);
+      setForm({ answer: '' });
+      setShowForm(false);
+      await fetch();
+    } catch (err) {
+      console.error('Failed to create knowledge item:', err);
+      alert('Failed to save knowledge item. Please try again.');
+    }
   };
 
   const remove = async (itemId: string) => {
     if (!botId || !confirm('Delete this item?')) return;
-    await deleteKnowledge(botId, itemId);
-    await fetch();
+    try {
+      await deleteKnowledge(botId, itemId);
+      await fetch();
+    } catch (err) {
+      console.error('Failed to delete knowledge item:', err);
+      alert('Failed to delete knowledge item. Please try again.');
+    }
   };
 
   if (loading) return (

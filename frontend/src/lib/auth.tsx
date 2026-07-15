@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { User } from '../types';
 import { getMe } from './api';
-import { supabase } from './supabase';
 
 interface AuthContextType {
   user: User | null;
@@ -35,26 +34,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = async () => {
-    await supabase.auth.signOut();
+  // ponytail: JWT is the only auth mechanism; Supabase client is used solely for
+  // optional file storage, never for sessions, so there is no session listener to wire.
+  const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
   };
 
   useEffect(() => {
     refresh();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.access_token) {
-        localStorage.setItem('token', session.access_token);
-        refresh();
-      } else if (event === 'SIGNED_OUT') {
-        localStorage.removeItem('token');
-        setUser(null);
-      }
-    });
-
-    return () => subscription.unsubscribe();
   }, []);
 
   return (

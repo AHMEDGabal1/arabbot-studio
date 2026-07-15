@@ -8,7 +8,7 @@ class Settings(BaseSettings):
         case_sensitive=False,
     )
 
-    database_url: str = "postgresql+asyncpg://user:pass@localhost:5432/arabbot"
+    database_url: str = "sqlite+aiosqlite:///./dev.db"
     redis_url: str = "redis://localhost:6379/0"
 
     google_api_key: str = ""
@@ -26,6 +26,9 @@ class Settings(BaseSettings):
 
     secret_key: str
     environment: str = "development"
+    debug: bool = False
+    enable_handoff: bool = True
+    enable_analytics: bool = True
     base_url: str = "http://localhost:8000"
     ssl_certfile: str = ""
     ssl_keyfile: str = ""

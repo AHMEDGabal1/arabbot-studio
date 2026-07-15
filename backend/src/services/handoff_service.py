@@ -71,4 +71,14 @@ async def resolve_handoff(db: AsyncSession, handoff_id: str, workspace_id: str) 
         .returning(HandoffQueue)
     )
     await db.flush()
-    return result.scalar_one_or_none()
+    handoff = result.scalar_one_or_none()
+    # IMPORTANT: Reactivate AI processing — without this, resolving a handoff
+    # would leave the conversation permanently muted in "handed_off" status.
+    if handoff:
+        conv_result = await db.execute(
+            select(Conversation).where(Conversation.id == handoff.conversation_id)
+        )
+        conversation = conv_result.scalar_one_or_none()
+        if conversation:
+            conversation.status = "active"
+    return handoff

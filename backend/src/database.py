@@ -16,10 +16,12 @@ class Base(DeclarativeBase):
 
 
 async def get_db() -> AsyncSession:
+    """Yield a database session. Callers must explicitly commit writes.
+    IMPORTANT: Auto-commit was removed to prevent silent data loss on
+    IntegrityErrors raised during post-response cleanup."""
     async with async_session_factory() as session:
         try:
             yield session
-            await session.commit()
         except Exception:
             await session.rollback()
             raise

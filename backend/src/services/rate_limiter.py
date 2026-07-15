@@ -18,9 +18,12 @@ except Exception:
     _redis = None
 
 
-async def _check_redis(key: str, max_requests: int, window_seconds: int) -> bool:
+async def _check_redis(key: str, max_requests: int, window_seconds: int) -> bool | None:
+    """Returns True if over limit, False if under limit, None if Redis unavailable.
+    IMPORTANT: Returning None (not False) for unavailable Redis is what tells
+    the caller to fall back to local rate limiting."""
     if _redis is None:
-        return False
+        return None
     try:
         await _redis.ping()
         pipe = _redis.pipeline()
@@ -33,7 +36,7 @@ async def _check_redis(key: str, max_requests: int, window_seconds: int) -> bool
         results = await pipe.execute()
         return results[3] > max_requests
     except Exception:
-        return False
+        return None
 
 
 def rate_limit(max_requests: int = 10, window_seconds: int = 60, key_prefix: str = ""):
@@ -42,23 +45,26 @@ def rate_limit(max_requests: int = 10, window_seconds: int = 60, key_prefix: str
             return
         client_host = request.client.host if request.client else "unknown"
         key = f"rl:{key_prefix}{client_host}:{request.url.path}"
-        if await _check_redis(key, max_requests, window_seconds):
+        redis_result = await _check_redis(key, max_requests, window_seconds)
+        if redis_result is True:
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail="Too many requests, try again later",
             )
-        now = time.time()
-        if key not in _store:
-            if len(_store) >= _MAX_KEYS:
-                _store.pop(next(iter(_store)))
-            _store[key] = []
-        timestamps = _store[key]
-        while timestamps and timestamps[0] < now - window_seconds:
-            timestamps.pop(0)
-        if len(timestamps) >= max_requests:
-            raise HTTPException(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail="Too many requests, try again later",
-            )
-        timestamps.append(now)
+        # Only use the local in-memory fallback when Redis is unavailable.
+        if redis_result is None:
+            now = time.time()
+            if key not in _store:
+                if len(_store) >= _MAX_KEYS:
+                    _store.pop(next(iter(_store)))
+                _store[key] = []
+            timestamps = _store[key]
+            while timestamps and timestamps[0] < now - window_seconds:
+                timestamps.pop(0)
+            if len(timestamps) >= max_requests:
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail="Too many requests, try again later",
+                )
+            timestamps.append(now)
     return _check

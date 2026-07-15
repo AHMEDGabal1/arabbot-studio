@@ -33,6 +33,7 @@ async def assign_handoff(
     handoff = await handoff_service.assign_handoff(db, str(handoff_id), body.assigned_to, str(workspace.id))
     if not handoff:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Handoff not found")
+    await db.commit()
     return HandoffRead.model_validate(handoff)
 
 
@@ -45,4 +46,5 @@ async def resolve_handoff(
     handoff = await handoff_service.resolve_handoff(db, str(handoff_id), str(workspace.id))
     if not handoff:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Handoff not found")
+    await db.commit()
     return HandoffRead.model_validate(handoff)

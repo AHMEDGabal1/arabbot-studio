@@ -17,15 +17,25 @@ export default function BotsList() {
   useEffect(() => { fetch(); }, []);
 
   const toggle = async (bot: BotType) => {
-    if (bot.is_active) await deactivateBot(bot.id);
-    else await activateBot(bot.id);
-    await fetch();
+    try {
+      if (bot.is_active) await deactivateBot(bot.id);
+      else await activateBot(bot.id);
+      await fetch();
+    } catch (e) {
+      console.error('Failed to toggle bot:', e);
+      alert('Failed to update bot status. Please try again.');
+    }
   };
 
   const remove = async (id: string) => {
     if (!confirm('Delete this bot?')) return;
-    await deleteBot(id);
-    await fetch();
+    try {
+      await deleteBot(id);
+      await fetch();
+    } catch (e) {
+      console.error('Failed to delete bot:', e);
+      alert('Failed to delete bot. Please try again.');
+    }
   };
 
   if (loading) return (

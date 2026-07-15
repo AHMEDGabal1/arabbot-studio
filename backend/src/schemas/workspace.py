@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class WorkspaceResponse(BaseModel):
@@ -13,3 +13,8 @@ class WorkspaceResponse(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class WorkspaceUpdate(BaseModel):
+    plan: str | None = Field(default=None, min_length=1)
+    monthly_message_limit: int | None = Field(default=None, ge=0)

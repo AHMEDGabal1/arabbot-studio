@@ -16,6 +16,11 @@ import Handoffs from './pages/Handoffs';
 import Settings from './pages/Settings';
 import ErrorBoundary from './components/ErrorBoundary';
 
+import AdminLayout from './components/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminWorkspaces from './pages/admin/AdminWorkspaces';
+import AdminUsers from './pages/admin/AdminUsers';
+
 const queryClient = new QueryClient();
 
 export default function App() {
@@ -38,6 +43,11 @@ export default function App() {
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/handoffs" element={<Handoffs />} />
               <Route path="/settings" element={<Settings />} />
+            </Route>
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/workspaces" element={<AdminWorkspaces />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

@@ -477,7 +477,7 @@ bots ──< knowledge_items
 1. Create a bot via `POST /api/v1/bots` with your WhatsApp Business `phone_number_id` and `access_token`
 2. In Meta Developer Portal → WhatsApp → Configuration, set:
    - **Callback URL**: `https://your-domain.com/webhooks/whatsapp/{bot_id}`
-   - **Verify Token**: any string (not validated yet, only `hub.challenge` is echoed)
+   - **Verify Token**: any string — stored per-bot as `wa_verify_token` and validated against the `hub.verify_token` param on the GET challenge
 3. Subscribe to `messages` webhook field
 4. Backend verifies incoming messages via HMAC-SHA256 using the bot's `wa_access_token` as the secret
 

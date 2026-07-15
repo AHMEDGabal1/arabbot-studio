@@ -7,7 +7,6 @@ from sqlalchemy import select
 from src.config import settings
 from src.database import async_session_factory
 from src.models import User, WorkspaceMember
-from src.services.supabase import get_supabase_admin
 
 logger = logging.getLogger(__name__)
 
@@ -22,23 +21,7 @@ async def workspace_middleware(request: Request, call_next):
             if workspace_id:
                 request.state.workspace_id = workspace_id
         except JWTError:
-            supabase = get_supabase_admin()
-            if supabase:
-                try:
-                    supabase_user = supabase.auth.get_user(token)
-                    async with async_session_factory() as db:
-                        result = await db.execute(
-                            select(User).where(User.supabase_uid == supabase_user.user.id)
-                        )
-                        user = result.scalar_one_or_none()
-                        if user:
-                            result = await db.execute(
-                                select(WorkspaceMember).where(WorkspaceMember.user_id == user.id).limit(1)
-                            )
-                            membership = result.scalar_one_or_none()
-                            if membership:
-                                request.state.workspace_id = str(membership.workspace_id)
-                except Exception:
-                    logger.warning("Supabase auth failed in workspace middleware")
+            # ponytail: only JWT carries workspace_id; no secondary auth path
+            logger.debug("Workspace middleware: invalid JWT, leaving workspace_id unset")
     response = await call_next(request)
     return response
