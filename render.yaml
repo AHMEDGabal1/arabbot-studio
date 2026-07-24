@@ -84,10 +84,7 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_BASE_URL
-        fromService:
-          type: web
-          name: arabbot-backend
-          property: url
+        value: https://arabbot-backend.onrender.com
 
   # ─────────────────────────────────────────
   # Redis — Managed Redis (Render)
@@ -97,6 +94,9 @@ services:
     plan: free             # 25MB. Upgrade to starter ($10/mo) for persistence.
     region: frankfurt
     maxmemoryPolicy: allkeys-lru   # Evict least-recently-used keys when memory is full
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: everywhere
 
 databases:
   # ─────────────────────────────────────────
