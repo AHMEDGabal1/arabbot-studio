@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     enable_handoff: bool = True
     enable_analytics: bool = True
     base_url: str = "http://localhost:8000"
+    cors_origins: str = "*"
     ssl_certfile: str = ""
     ssl_keyfile: str = ""
 

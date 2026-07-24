@@ -57,7 +57,7 @@ if settings.sentry_dsn:
         integrations=[FastApiIntegration()],
     )
 
-origins = [settings.base_url] if settings.environment == "production" else ["*"]
+origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()] if settings.cors_origins and settings.cors_origins != "*" else ["*"]
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

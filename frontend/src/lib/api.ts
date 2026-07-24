@@ -1,7 +1,8 @@
 import axios from 'axios';
 import type { Analytics, Bot, BotCreate, Conversation, Handoff, KnowledgeItem, KnowledgeItemCreate, Message, User } from '../types';
 
-const api = axios.create({ baseURL: '/api/v1' });
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
+const api = axios.create({ baseURL: `${API_BASE}/api/v1` });
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
