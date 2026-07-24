@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, type Variants, useInView } from 'framer-motion';
 import {
   Bot, MessageCircle, BarChart3, Shield, ArrowRight,
-  CheckCircle2, Globe, Network, Check, Activity, Zap
+  CheckCircle2, Globe, Network, Check, Activity
 } from 'lucide-react';
 import { useCountUp } from '../lib/useCountUp';
 

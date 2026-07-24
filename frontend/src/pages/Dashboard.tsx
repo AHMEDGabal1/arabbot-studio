@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { Bot, MessageCircle, Handshake, MessageSquare, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, type Variants } from 'framer-motion';
@@ -31,10 +32,10 @@ export default function Dashboard() {
       try {
         const [botsResult, analyticsResult] = await Promise.allSettled([listBots(), getAnalyticsOverview()]);
         if (botsResult.status === 'fulfilled') setBots(botsResult.value);
-        else console.error('Failed to load bots:', botsResult.reason);
+        else toast.error('Failed to load bots');
         if (analyticsResult.status === 'fulfilled') setStats(analyticsResult.value);
-        else console.error('Failed to load analytics:', analyticsResult.reason);
-      } catch (e) { console.error(e); } finally {
+        else toast.error('Failed to load analytics');
+      } catch (e) { console.error(e); toast.error('Failed to load dashboard data'); } finally {
         setLoading(false);
       }
     })();

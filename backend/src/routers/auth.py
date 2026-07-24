@@ -1,3 +1,4 @@
+import asyncio
 import uuid
 from datetime import datetime, timedelta, timezone
 
@@ -41,7 +42,7 @@ async def register(
     user = User(
         email=body.email,
         phone=body.phone,
-        password_hash=bcrypt.hashpw(body.password.encode(), bcrypt.gensalt()).decode(),
+        password_hash=(await asyncio.to_thread(bcrypt.hashpw, body.password.encode(), bcrypt.gensalt())).decode(),
     )
     db.add(user)
     await db.flush()
@@ -70,7 +71,7 @@ async def login(
     result = await db.execute(select(User).where(User.email == body.email))
     user = result.scalar_one_or_none()
 
-    if not user or not user.password_hash or not bcrypt.checkpw(body.password.encode(), user.password_hash.encode()):
+    if not user or not user.password_hash or not await asyncio.to_thread(bcrypt.checkpw, body.password.encode(), user.password_hash.encode()):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
     result = await db.execute(
@@ -97,7 +98,14 @@ async def refresh(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
-    result = await db.execute(select(User).where(User.id == uuid.UUID(user_id)))
+    # IMPORTANT: Guard against malformed "sub" claims that would crash uuid.UUID()
+    # with an unhandled ValueError, mirroring the same pattern used in deps.py.
+    try:
+        parsed_user_id = uuid.UUID(user_id)
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
+
+    result = await db.execute(select(User).where(User.id == parsed_user_id))
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")

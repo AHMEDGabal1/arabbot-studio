@@ -23,9 +23,10 @@ export interface Bot {
   wa_access_token?: string;
   system_prompt?: string;
   fallback_message?: string;
-  human_handoff_enabled: boolean;
+  human_handoff_enabled?: boolean;
   is_active: boolean;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface BotCreate {
@@ -67,6 +68,7 @@ export interface KnowledgeItem {
   answer: string;
   item_metadata?: Record<string, unknown>;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface KnowledgeItemCreate {

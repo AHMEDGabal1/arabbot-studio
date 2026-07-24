@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 import { createBot, getBot, updateBot } from '../lib/api';
 import type { BotCreate } from '../types';
 
@@ -37,7 +38,7 @@ export default function BotEditor() {
             fallback_message: bot.fallback_message || '',
             human_handoff_enabled: bot.human_handoff_enabled,
           });
-        } catch (e) { console.error(e); } finally {
+        } catch (e) { console.error(e); toast.error('Failed to load bot'); } finally {
           setLoading(false);
         }
       })();

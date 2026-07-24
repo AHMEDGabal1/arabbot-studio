@@ -1,5 +1,4 @@
 import axios from 'axios';
-import type { User, Workspace } from '../types';
 
 const api = axios.create({ baseURL: '/api/v1/admin' });
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Bot, Plus, ToggleLeft, ToggleRight, Trash2 } from 'lucide-react';
 import { activateBot, deactivateBot, deleteBot, listBots } from '../lib/api';
 import type { Bot as BotType } from '../types';
@@ -11,7 +12,7 @@ export default function BotsList() {
   const [loading, setLoading] = useState(true);
 
   const fetch = async () => {
-    try { setBots(await listBots()); } catch (e) { console.error(e); } finally { setLoading(false); }
+    try { setBots(await listBots()); } catch (e) { console.error(e); toast.error('Failed to load bots'); } finally { setLoading(false); }
   };
 
   useEffect(() => { fetch(); }, []);
@@ -23,7 +24,7 @@ export default function BotsList() {
       await fetch();
     } catch (e) {
       console.error('Failed to toggle bot:', e);
-      alert('Failed to update bot status. Please try again.');
+      toast.error('Failed to update bot status');
     }
   };
 
@@ -34,7 +35,7 @@ export default function BotsList() {
       await fetch();
     } catch (e) {
       console.error('Failed to delete bot:', e);
-      alert('Failed to delete bot. Please try again.');
+      toast.error('Failed to delete bot');
     }
   };
 

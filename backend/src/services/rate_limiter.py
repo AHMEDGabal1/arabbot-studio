@@ -7,7 +7,7 @@ from fastapi import HTTPException, Request, status
 
 from src.config import settings
 
-_store: dict[str, list[float]] = {}
+_store: OrderedDict[str, list[float]] = OrderedDict()
 _MAX_KEYS = 10000
 
 try:
@@ -25,7 +25,6 @@ async def _check_redis(key: str, max_requests: int, window_seconds: int) -> bool
     if _redis is None:
         return None
     try:
-        await _redis.ping()
         pipe = _redis.pipeline()
         now = math.ceil(time.time())
         window_start = now - window_seconds
@@ -56,8 +55,12 @@ def rate_limit(max_requests: int = 10, window_seconds: int = 60, key_prefix: str
             now = time.time()
             if key not in _store:
                 if len(_store) >= _MAX_KEYS:
-                    _store.pop(next(iter(_store)))
+                    _store.popitem(last=False)
                 _store[key] = []
+            else:
+                # IMPORTANT: Move to end on access so the eviction target is
+                # always the *least recently used* key, not just the oldest.
+                _store.move_to_end(key)
             timestamps = _store[key]
             while timestamps and timestamps[0] < now - window_seconds:
                 timestamps.pop(0)

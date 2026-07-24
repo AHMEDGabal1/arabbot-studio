@@ -28,6 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(u);
     } catch {
       localStorage.removeItem('token');
+      localStorage.removeItem('refresh_token');
       setUser(null);
     } finally {
       setLoading(false);
@@ -38,6 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // optional file storage, never for sessions, so there is no session listener to wire.
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refresh_token');
     setUser(null);
   };
 

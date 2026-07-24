@@ -19,8 +19,9 @@ api.interceptors.response.use(
       (networkError as any).isNetworkError = true;
       return Promise.reject(networkError);
     }
-    if (err.response?.status === 401 && !window.location.pathname.startsWith('/login')) {
+    if (err.response?.status === 401 && !window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/register')) {
       localStorage.removeItem('token');
+      localStorage.removeItem('refresh_token');
       window.location.href = '/login';
     }
     return Promise.reject(err);

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
@@ -52,7 +52,6 @@ describe('Login Component', () => {
 
   it('shows validation error when fields are empty', async () => {
     renderLogin();
-    const button = screen.getByRole('button', { name: /Sign In/i });
     
     // HTML5 validation will prevent submission, but if we bypass it:
     const emailInput = screen.getByLabelText(/Email/i);

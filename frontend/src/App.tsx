@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
@@ -6,20 +7,24 @@ import Layout from './components/Layout';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import BotsList from './pages/BotsList';
-import BotEditor from './pages/BotEditor';
-import KnowledgeBase from './pages/KnowledgeBase';
-import Conversations from './pages/Conversations';
-import Analytics from './pages/Analytics';
-import Handoffs from './pages/Handoffs';
-import Settings from './pages/Settings';
 import ErrorBoundary from './components/ErrorBoundary';
+import LoadingSpinner from './components/LoadingSpinner';
 
-import AdminLayout from './components/admin/AdminLayout';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminWorkspaces from './pages/admin/AdminWorkspaces';
-import AdminUsers from './pages/admin/AdminUsers';
+// Lazy-load authenticated pages to split the ~932 kB bundle into smaller chunks.
+// Landing/Login/Register are kept eager because they are the initial entry points.
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const BotsList = lazy(() => import('./pages/BotsList'));
+const BotEditor = lazy(() => import('./pages/BotEditor'));
+const KnowledgeBase = lazy(() => import('./pages/KnowledgeBase'));
+const Conversations = lazy(() => import('./pages/Conversations'));
+const Analytics = lazy(() => import('./pages/Analytics'));
+const Handoffs = lazy(() => import('./pages/Handoffs'));
+const Settings = lazy(() => import('./pages/Settings'));
+
+const AdminLayout = lazy(() => import('./components/admin/AdminLayout'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminWorkspaces = lazy(() => import('./pages/admin/AdminWorkspaces'));
+const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 
 const queryClient = new QueryClient();
 
@@ -29,6 +34,7 @@ export default function App() {
       <BrowserRouter>
         <AuthProvider>
           <ErrorBoundary>
+          <Suspense fallback={<LoadingSpinner fullScreen />}>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
@@ -44,13 +50,14 @@ export default function App() {
               <Route path="/handoffs" element={<Handoffs />} />
               <Route path="/settings" element={<Settings />} />
             </Route>
-            <Route element={<AdminLayout />}>
+            <Route element={<Suspense fallback={<LoadingSpinner fullScreen />}><AdminLayout /></Suspense>}>
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/workspaces" element={<AdminWorkspaces />} />
               <Route path="/admin/users" element={<AdminUsers />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          </Suspense>
           </ErrorBoundary>
           <Toaster
             position="top-left"
