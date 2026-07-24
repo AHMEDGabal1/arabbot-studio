@@ -114,6 +114,11 @@ export async function resolveHandoff(id: string): Promise<void> {
   await api.patch(`/handoffs/${id}/resolve`);
 }
 
+export async function assignHandoff(id: string, assignedTo: string): Promise<Handoff> {
+  const { data } = await api.patch(`/handoffs/${id}/assign`, { assigned_to: assignedTo });
+  return data;
+}
+
 export async function getAnalyticsOverview(): Promise<Analytics> {
   const { data } = await api.get('/analytics/overview');
   return data;
