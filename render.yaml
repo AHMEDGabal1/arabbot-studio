@@ -73,7 +73,8 @@ services:
   # ─────────────────────────────────────────
   # Frontend — React Static Site
   # ─────────────────────────────────────────
-  - type: static
+  - type: web
+    env: static
     name: arabbot-frontend
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
