@@ -100,3 +100,81 @@ export interface Analytics {
   bot_id?: string;
   bot_name?: string;
 }
+
+export interface GuardrailRule {
+  id: string;
+  bot_id: string;
+  rule_type: 'forbidden_word' | 'max_discount' | 'required_phrase' | 'regex_block' | 'max_length';
+  value: string;
+  action: 'block' | 'replace' | 'flag' | 'escalate';
+  replacement_text?: string;
+  is_active: boolean;
+  priority: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GuardrailRuleCreate {
+  rule_type: string;
+  value: string;
+  action?: string;
+  replacement_text?: string;
+  is_active?: boolean;
+  priority?: number;
+}
+
+export interface AgentConfig {
+  id: string;
+  bot_id: string;
+  agent_type: 'sales' | 'support' | 'faq' | 'complaints' | 'custom' | string;
+  display_name: string;
+  system_prompt: string;
+  model_provider: string;
+  model_name?: string;
+  temperature: number;
+  handles_intents: string; // JSON array string
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AgentConfigCreate {
+  agent_type: string;
+  display_name: string;
+  system_prompt: string;
+  handles_intents: string;
+  model_provider?: string;
+  model_name?: string;
+  temperature?: number;
+  is_active?: boolean;
+}
+
+export interface CustomerProfile {
+  id: string;
+  workspace_id: string;
+  channel: string;
+  channel_user_id: string;
+  display_name?: string;
+  phone?: string;
+  email?: string;
+  tags?: string;
+  notes?: string;
+  first_seen_at: string;
+  last_seen_at: string;
+  total_conversations: number;
+  total_messages: number;
+  preferred_language?: string;
+  custom_fields?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CustomerProfileUpdate {
+  display_name?: string;
+  phone?: string;
+  email?: string;
+  tags?: string;
+  notes?: string;
+  preferred_language?: string;
+  custom_fields?: string;
+}

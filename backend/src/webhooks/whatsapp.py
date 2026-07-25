@@ -15,7 +15,7 @@ from src.chains.orchestrator import process_message
 from src.config import settings
 from src.database import async_session_factory, get_db
 from src.models import Bot, Workspace
-from src.services import conversation_service, handoff_service
+from src.services import conversation_service, customer_profile_service, handoff_service
 from src.services.knowledge_service import search_knowledge
 from src.services.rate_limiter import rate_limit
 from src.services.wa_sender_service import send_wa_message
@@ -79,6 +79,12 @@ async def process_incoming(bot: Bot, msg: dict):
                 db, str(bot.id), "whatsapp", channel_user_id,
             )
 
+            # Customer Profile (CDP) integration
+            profile = await customer_profile_service.get_or_create_profile(
+                db, str(bot.workspace_id), "whatsapp", channel_user_id
+            )
+            await customer_profile_service.increment_message_count(db, profile.id)
+
             user_msg = await conversation_service.add_message(
                 db, str(conversation.id), "user", text, raw_content=text,
             )
@@ -89,7 +95,6 @@ async def process_incoming(bot: Bot, msg: dict):
                 logger.info("Skipping AI: conversation %s is handed off", conversation.id)
                 return
 
-
             ws = await db.get(Workspace, bot.workspace_id)
             if ws:
                 now = datetime.now(timezone.utc)
@@ -99,9 +104,19 @@ async def process_incoming(bot: Bot, msg: dict):
                     ws.last_message_month = month_key
                 ws.messages_used_this_month = (ws.messages_used_this_month or 0) + 1
 
+            customer_ctx = await customer_profile_service.get_profile_context(
+                db, str(bot.workspace_id), "whatsapp", channel_user_id
+            )
+
             knowledge_items = await search_knowledge(str(bot.id), text)
 
-            result = await process_message(text, knowledge_items if knowledge_items else None)
+            result = await process_message(
+                text,
+                knowledge_items=knowledge_items if knowledge_items else None,
+                bot_id=str(bot.id),
+                db=db,
+                customer_context=customer_ctx,
+            )
 
             processing_ms = int((time.monotonic() - start) * 1000)
 
@@ -132,6 +147,8 @@ async def process_incoming(bot: Bot, msg: dict):
                     "intent": result["intent"],
                     "confidence": result["confidence"],
                     "processing_ms": processing_ms,
+                    "agent_type": result.get("agent_type"),
+                    "guardrail_action": result.get("guardrail_action"),
                 },
             )
         except Exception:

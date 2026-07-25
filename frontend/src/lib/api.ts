@@ -1,5 +1,21 @@
 import axios from 'axios';
-import type { Analytics, Bot, BotCreate, Conversation, Handoff, KnowledgeItem, KnowledgeItemCreate, Message, User } from '../types';
+import type {
+  AgentConfig,
+  AgentConfigCreate,
+  Analytics,
+  Bot,
+  BotCreate,
+  Conversation,
+  CustomerProfile,
+  CustomerProfileUpdate,
+  GuardrailRule,
+  GuardrailRuleCreate,
+  Handoff,
+  KnowledgeItem,
+  KnowledgeItemCreate,
+  Message,
+  User,
+} from '../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 const api = axios.create({ baseURL: `${API_BASE}/api/v1` });
@@ -127,6 +143,72 @@ export async function getAnalyticsOverview(): Promise<Analytics> {
 
 export async function getBotAnalytics(botId: string): Promise<Analytics> {
   const { data } = await api.get(`/analytics/bots/${botId}`);
+  return data;
+}
+
+// Guardrails API
+export async function listGuardrails(botId: string): Promise<GuardrailRule[]> {
+  const { data } = await api.get(`/bots/${botId}/guardrails`);
+  return data.items ?? data;
+}
+
+export async function createGuardrail(botId: string, body: GuardrailRuleCreate): Promise<GuardrailRule> {
+  const { data } = await api.post(`/bots/${botId}/guardrails`, body);
+  return data;
+}
+
+export async function updateGuardrail(botId: string, ruleId: string, body: Partial<GuardrailRuleCreate>): Promise<GuardrailRule> {
+  const { data } = await api.patch(`/bots/${botId}/guardrails/${ruleId}`, body);
+  return data;
+}
+
+export async function deleteGuardrail(botId: string, ruleId: string): Promise<void> {
+  await api.delete(`/bots/${botId}/guardrails/${ruleId}`);
+}
+
+// Agent Configs API
+export async function listAgents(botId: string): Promise<AgentConfig[]> {
+  const { data } = await api.get(`/bots/${botId}/agents`);
+  return data;
+}
+
+export async function createAgentConfig(botId: string, body: AgentConfigCreate): Promise<AgentConfig> {
+  const { data } = await api.post(`/bots/${botId}/agents`, body);
+  return data;
+}
+
+export async function updateAgentConfig(botId: string, agentId: string, body: Partial<AgentConfigCreate>): Promise<AgentConfig> {
+  const { data } = await api.patch(`/bots/${botId}/agents/${agentId}`, body);
+  return data;
+}
+
+export async function deleteAgentConfig(botId: string, agentId: string): Promise<void> {
+  await api.delete(`/bots/${botId}/agents/${agentId}`);
+}
+
+export async function seedDefaultAgents(botId: string): Promise<AgentConfig[]> {
+  const { data } = await api.post(`/bots/${botId}/agents/seed-defaults`);
+  return data;
+}
+
+// Customers API
+export async function listCustomers(params?: { q?: string; tag?: string; limit?: number; offset?: number }): Promise<CustomerProfile[]> {
+  const { data } = await api.get('/customers', { params });
+  return data;
+}
+
+export async function getCustomer(profileId: string): Promise<CustomerProfile> {
+  const { data } = await api.get(`/customers/${profileId}`);
+  return data;
+}
+
+export async function updateCustomer(profileId: string, body: CustomerProfileUpdate): Promise<CustomerProfile> {
+  const { data } = await api.patch(`/customers/${profileId}`, body);
+  return data;
+}
+
+export async function getCustomerConversations(profileId: string): Promise<Conversation[]> {
+  const { data } = await api.get(`/customers/${profileId}/conversations`);
   return data;
 }
 
