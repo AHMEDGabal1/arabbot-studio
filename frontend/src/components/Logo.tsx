@@ -60,14 +60,9 @@ export default function Logo({ size = 'md', showText = true, showSubtitle = true
       <LogoMark size={size} />
       {showText && (
         <div className="flex flex-col justify-center">
-          <div className="flex items-center gap-1.5">
-            <span className="font-display font-extrabold text-white text-lg tracking-tight leading-none group-hover:text-emerald-400 transition-colors">
-              ArabBot
-            </span>
-            <span className="text-gradient-emerald font-display font-extrabold text-lg tracking-tight leading-none">
-              Studio
-            </span>
-          </div>
+          <span className="font-display font-extrabold text-lg tracking-tight leading-none text-white group-hover:text-emerald-400 transition-colors">
+            ArabBot Studio
+          </span>
           {showSubtitle && (
             <span className="font-arabic text-[10px] text-emerald-400/90 font-medium leading-none mt-1" dir="rtl">
               منصة بوتات الواتساب الذكية
