@@ -17,6 +17,7 @@ const BotsList = lazy(() => import('./pages/BotsList'));
 const BotEditor = lazy(() => import('./pages/BotEditor'));
 const KnowledgeBase = lazy(() => import('./pages/KnowledgeBase'));
 const Conversations = lazy(() => import('./pages/Conversations'));
+const Customers = lazy(() => import('./pages/Customers'));
 const Analytics = lazy(() => import('./pages/Analytics'));
 const Handoffs = lazy(() => import('./pages/Handoffs'));
 const Settings = lazy(() => import('./pages/Settings'));
@@ -46,6 +47,7 @@ export default function App() {
               <Route path="/bots/:id" element={<BotEditor />} />
               <Route path="/bots/:botId/knowledge" element={<KnowledgeBase />} />
               <Route path="/conversations" element={<Conversations />} />
+              <Route path="/customers" element={<Customers />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/handoffs" element={<Handoffs />} />
               <Route path="/settings" element={<Settings />} />

@@ -17,7 +17,7 @@ from sqlalchemy import text
 from src.config import settings
 from src.database import get_db
 from src.middleware.workspace import workspace_middleware
-from src.routers import analytics, auth, bots, conversations, handoffs, knowledge, admin
+from src.routers import admin, agents, analytics, auth, bots, conversations, customers, guardrails, handoffs, knowledge
 from src.services.rate_limiter import _redis as redis_client
 from src.services.storage import ensure_buckets
 from src.webhooks import whatsapp
@@ -59,9 +59,13 @@ if settings.sentry_dsn:
 
 origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()] if settings.cors_origins and settings.cors_origins != "*" else ["*"]
 
+from src.database import Base, engine
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await ensure_buckets()
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     yield
 
 
@@ -120,6 +124,9 @@ app.middleware("http")(workspace_middleware)
 
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(bots.router, prefix="/api/v1")
+app.include_router(agents.router, prefix="/api/v1")
+app.include_router(guardrails.router, prefix="/api/v1")
+app.include_router(customers.router, prefix="/api/v1")
 app.include_router(conversations.router, prefix="/api/v1")
 app.include_router(knowledge.router, prefix="/api/v1")
 app.include_router(handoffs.router, prefix="/api/v1")

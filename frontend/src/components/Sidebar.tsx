@@ -1,4 +1,4 @@
-import { Bot, ChartBar, MessageCircle, Settings as SettingsIcon, Handshake, LogOut, LayoutDashboard } from 'lucide-react';
+import { Bot, ChartBar, MessageCircle, Settings as SettingsIcon, Handshake, LogOut, LayoutDashboard, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../lib/auth';
@@ -8,6 +8,7 @@ const links = [
   { to: '/dashboard', label: 'Dashboard', labelAr: 'لوحة التحكم', icon: LayoutDashboard },
   { to: '/bots', label: 'Bots', labelAr: 'البوتات', icon: Bot },
   { to: '/conversations', label: 'Conversations', labelAr: 'المحادثات', icon: MessageCircle },
+  { to: '/customers', label: 'Customers CDP', labelAr: 'سجل العملاء', icon: Users },
   { to: '/handoffs', label: 'Handoffs', labelAr: 'التحويل للبشر', icon: Handshake },
   { to: '/analytics', label: 'Analytics', labelAr: 'التحليلات', icon: ChartBar },
   { to: '/settings', label: 'Settings', labelAr: 'الإعدادات', icon: SettingsIcon },
