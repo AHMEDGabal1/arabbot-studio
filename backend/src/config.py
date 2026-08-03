@@ -1,3 +1,4 @@
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -48,5 +49,17 @@ class Settings(BaseSettings):
     def jwt_expire_minutes(self) -> int:
         return 60 * 24  # 24 hours
 
+    @model_validator(mode="after")
+    def _validate_production_secrets(self) -> "Settings":
+        if self.environment == "production":
+            if len(self.secret_key) < 32:
+                raise ValueError("SECRET_KEY must be at least 32 characters in production")
+            if "dev-secret" in self.secret_key.lower() or "change-in-production" in self.secret_key.lower():
+                raise ValueError("SECRET_KEY contains development placeholder — set a real secret")
+            if not self.meta_app_secret:
+                raise ValueError("META_APP_SECRET is required in production for webhook signature verification")
+        return self
+
 
 settings = Settings()
+

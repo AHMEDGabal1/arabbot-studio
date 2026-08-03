@@ -16,6 +16,8 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # ---- Runtime stage ----
 FROM python:3.12-slim AS runtime
 
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
 # IMPORTANT: Run as non-root for container security.
 RUN addgroup --system app && adduser --system --group app
 

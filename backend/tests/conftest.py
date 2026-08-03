@@ -43,3 +43,27 @@ async def client(db_session: AsyncSession):
         yield ac
 
     app.dependency_overrides.clear()
+
+
+@pytest.fixture(autouse=True)
+def mock_langchain_gemini():
+    """
+    Mock LangChain Gemini LLM and Embeddings to prevent real network calls
+    to Google APIs during test runs.
+    """
+    from unittest.mock import AsyncMock, patch
+    from langchain_core.messages import AIMessage
+
+    mock_ai_message = AIMessage(content="مرحبا! كيف يمكنني مساعدتك؟")
+    with patch("langchain_google_genai.ChatGoogleGenerativeAI.ainvoke", new_callable=AsyncMock) as mock_ainvoke, \
+         patch("langchain_google_genai.GoogleGenerativeAIEmbeddings.aembed_documents", new_callable=AsyncMock) as mock_aembed_docs, \
+         patch("langchain_google_genai.GoogleGenerativeAIEmbeddings.aembed_query", new_callable=AsyncMock) as mock_aembed_query:
+        mock_ainvoke.return_value = mock_ai_message
+        mock_aembed_docs.return_value = [[0.1] * 768]
+        mock_aembed_query.return_value = [0.1] * 768
+        yield {
+            "ainvoke": mock_ainvoke,
+            "aembed_documents": mock_aembed_docs,
+            "aembed_query": mock_aembed_query,
+        }
+

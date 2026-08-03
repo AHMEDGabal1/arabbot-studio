@@ -1,3 +1,20 @@
+"""
+FAISS-based local vector store for bot knowledge base search.
+
+KNOWN LIMITATIONS (single-process-only design):
+  1. Indices are stored on local disk (data/faiss_indices/). They will be lost
+     on container redeploy, ephemeral filesystem, or pod restart.
+  2. Concurrency is protected by per-process asyncio.Lock objects — these do NOT
+     protect across multiple uvicorn workers or replicas.
+  3. This design is acceptable for single-process development and staging.
+
+PRODUCTION MIGRATION PATH:
+  - Replace FAISS with pgvector (PostgreSQL extension) or a managed vector DB
+    (e.g., Qdrant, Pinecone, Weaviate) to get durable, multi-worker-safe storage.
+  - The public interface (build_index, add_to_index, search) is intentionally
+    narrow so the migration only requires swapping this module's internals.
+"""
+
 import asyncio
 import json
 import logging

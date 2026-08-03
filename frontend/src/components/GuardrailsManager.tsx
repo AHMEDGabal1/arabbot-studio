@@ -173,25 +173,24 @@ export default function GuardrailsManager({ botId }: Props) {
     is_active: true,
   });
 
-  useEffect(() => {
-    const fetchRules = async () => {
-      try {
-        setLoading(true);
-        const data = await listGuardrails(botId);
-        // Sort by priority ascending
-        const sorted = Array.isArray(data) ? [...data].sort((a, b) => a.priority - b.priority) : [];
-        setRules(sorted);
-      } catch (err: unknown) {
-        console.error(err);
-        toast.error('Failed to load safety guardrails');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (botId) {
-      fetchRules();
+  const fetchRules = async () => {
+    if (!botId) return;
+    try {
+      setLoading(true);
+      const data = await listGuardrails(botId);
+      // Sort by priority ascending
+      const sorted = Array.isArray(data) ? [...data].sort((a, b) => a.priority - b.priority) : [];
+      setRules(sorted);
+    } catch (err: unknown) {
+      console.error(err);
+      toast.error('Failed to load safety guardrails');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchRules();
   }, [botId]);
 
   const handleOpenAdd = () => {
