@@ -7,7 +7,10 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from src.config import settings
 from src.database import Base
-from src.models import Workspace, WorkspaceMember, User, Bot, Conversation, Message, KnowledgeItem, HandoffQueue
+from src.models import (
+    Workspace, WorkspaceMember, User, Bot, Conversation, Message,
+    KnowledgeItem, HandoffQueue, CustomerProfile, AgentConfig, GuardrailRule
+)
 
 config = context.config
 if config.config_file_name is not None:

@@ -11,7 +11,7 @@ class Conversation(Base):
     __tablename__ = "conversations"
 
     id = Column(Uuid, primary_key=True, default=uuid.uuid4)
-    bot_id = Column(Uuid, ForeignKey("bots.id"), nullable=False, index=True)
+    bot_id = Column(Uuid, ForeignKey("bots.id", ondelete="CASCADE"), nullable=False, index=True)
     channel = Column(String(20), nullable=False)
     channel_user_id = Column(Text, nullable=False, index=True)
     user_display_name = Column(Text, nullable=True)

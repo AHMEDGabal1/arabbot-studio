@@ -66,7 +66,7 @@ async def update_customer(
     return profile
 
 
-@router.get("/{profile_id}/conversations")
+@router.get("/{profile_id}/conversations", response_model=None)
 async def list_customer_conversations(
     profile_id: uuid.UUID,
     workspace: Workspace = Depends(get_current_workspace),

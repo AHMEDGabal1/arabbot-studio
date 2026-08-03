@@ -57,15 +57,20 @@ def index_exists(bot_id: str) -> bool:
 async def build_index(bot_id: str, texts: list[str]) -> None:
     embeddings = _get_embeddings()
     if embeddings is None:
-        logger.warning("No Google API key set - skipping FAISS index build")
+        logger.warning("No embedding model configured - skipping FAISS index build")
         return
-    vectors = await embeddings.aembed_documents(texts)
-    dimension = len(vectors[0])
-    index = faiss.IndexFlatL2(dimension)
-    index.add(np.array(vectors).astype("float32"))
-    faiss.write_index(index, str(_index_path(bot_id)))
-    with open(_store_path(bot_id), "w", encoding="utf-8") as f:
-        json.dump({"texts": texts}, f)
+    try:
+        vectors = await embeddings.aembed_documents(texts)
+        dimension = len(vectors[0])
+        index = faiss.IndexFlatL2(dimension)
+        index.add(np.array(vectors).astype("float32"))
+        faiss.write_index(index, str(_index_path(bot_id)))
+        with open(_store_path(bot_id), "w", encoding="utf-8") as f:
+            json.dump({"texts": texts}, f)
+    except Exception as e:
+        logger.warning(f"Failed to build vector index: {e}")
+        with open(_store_path(bot_id), "w", encoding="utf-8") as f:
+            json.dump({"texts": texts}, f)
 
 
 async def add_to_index(bot_id: str, texts: list[str]) -> None:
@@ -75,10 +80,13 @@ async def add_to_index(bot_id: str, texts: list[str]) -> None:
         embeddings = _get_embeddings()
         if embeddings is None:
             return
-        vectors = await embeddings.aembed_documents(texts)
-        index = faiss.read_index(str(_index_path(bot_id)))
-        index.add(np.array(vectors).astype("float32"))
-        faiss.write_index(index, str(_index_path(bot_id)))
+        try:
+            vectors = await embeddings.aembed_documents(texts)
+            index = faiss.read_index(str(_index_path(bot_id)))
+            index.add(np.array(vectors).astype("float32"))
+            faiss.write_index(index, str(_index_path(bot_id)))
+        except Exception as e:
+            logger.warning(f"Failed to update vector index: {e}")
         with open(_store_path(bot_id), "r", encoding="utf-8") as f:
             data = json.load(f)
         data["texts"].extend(texts)
@@ -92,10 +100,23 @@ async def search(bot_id: str, query: str, k: int = 3) -> list[str]:
             return []
         embeddings = _get_embeddings()
         if embeddings is None:
+            with open(_store_path(bot_id), "r", encoding="utf-8") as f:
+                data = json.load(f)
+            return data.get("texts", [])[:k]
+        try:
+            query_vector = await embeddings.aembed_query(query)
+            index = faiss.read_index(str(_index_path(bot_id)))
+            distances, indices = index.search(np.array([query_vector]).astype("float32"), k)
+            with open(_store_path(bot_id), "r", encoding="utf-8") as f:
+                data = json.load(f)
+            # IMPORTANT: Filter out negative indices returned by FAISS when k > index size.
+            # Negative indices (usually -1) indicate "no match found" and would cause IndexError
+            # or return incorrect results if used directly.
+            return [data["texts"][i] for i in indices[0] if 0 <= i < len(data["texts"])]
+        except Exception as e:
+            logger.warning(f"Failed to search vector index: {e}")
+            if _store_path(bot_id).exists():
+                with open(_store_path(bot_id), "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                return data.get("texts", [])[:k]
             return []
-        query_vector = await embeddings.aembed_query(query)
-        index = faiss.read_index(str(_index_path(bot_id)))
-        distances, indices = index.search(np.array([query_vector]).astype("float32"), k)
-        with open(_store_path(bot_id), "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return [data["texts"][i] for i in indices[0] if i < len(data["texts"])]

@@ -11,9 +11,9 @@ class HandoffQueue(Base):
     __tablename__ = "handoff_queue"
 
     id = Column(Uuid, primary_key=True, default=uuid.uuid4)
-    conversation_id = Column(Uuid, ForeignKey("conversations.id"), nullable=False, index=True)
+    conversation_id = Column(Uuid, ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False, index=True)
     reason = Column(Text, nullable=True)
-    assigned_to = Column(Uuid, ForeignKey("users.id"), nullable=True)
+    assigned_to = Column(Uuid, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
     resolved_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 

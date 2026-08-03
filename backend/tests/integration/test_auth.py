@@ -5,7 +5,7 @@ import pytest
 async def test_register(client):
     resp = await client.post("/api/v1/auth/register", json={
         "email": "test@example.com",
-        "password": "testpass123",
+        "password": "Testpass123",
         "name": "Test User",
     })
     assert resp.status_code == 201
@@ -18,12 +18,12 @@ async def test_register(client):
 async def test_login(client):
     await client.post("/api/v1/auth/register", json={
         "email": "login@example.com",
-        "password": "testpass123",
+        "password": "Testpass123",
         "name": "Login User",
     })
     resp = await client.post("/api/v1/auth/login", json={
         "email": "login@example.com",
-        "password": "testpass123",
+        "password": "Testpass123",
     })
     assert resp.status_code == 200
     data = resp.json()
@@ -34,7 +34,7 @@ async def test_login(client):
 async def test_me(client):
     reg = await client.post("/api/v1/auth/register", json={
         "email": "me@example.com",
-        "password": "testpass123",
+        "password": "Testpass123",
         "name": "Me User",
     })
     token = reg.json()["access_token"]
@@ -53,12 +53,12 @@ async def test_me_unauthorized(client):
 async def test_duplicate_email(client):
     await client.post("/api/v1/auth/register", json={
         "email": "dup@example.com",
-        "password": "testpass123",
+        "password": "Testpass123",
         "name": "Dup User",
     })
     resp = await client.post("/api/v1/auth/register", json={
         "email": "dup@example.com",
-        "password": "testpass123",
+        "password": "Testpass123",
         "name": "Dup User 2",
     })
     assert resp.status_code == 409

@@ -26,7 +26,7 @@ export default function Register() {
       await register(email, password, name, phone || undefined);
       await refresh();
       navigate('/dashboard');
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(extractErrorMessage(err));
     } finally {
       setLoading(false);
@@ -128,6 +128,33 @@ export default function Register() {
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition-colors"
                 placeholder="••••••••"
               />
+              
+              <div className="mt-2.5 p-3 bg-slate-950/80 border border-slate-800 rounded-xl space-y-1.5 text-xs text-slate-300">
+                <p className="font-semibold text-slate-200 flex items-center justify-between">
+                  <span>Password Requirements</span>
+                  <span className="font-arabic text-emerald-400 text-xs" dir="rtl">تعليمات كلمة المرور</span>
+                </p>
+                <ul className="space-y-1.5 pt-1">
+                  <li className={`flex items-center gap-2 transition-colors ${password.length >= 8 ? 'text-emerald-400 font-medium' : 'text-slate-400'}`}>
+                    <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${password.length >= 8 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-slate-800 text-slate-500'}`}>
+                      {password.length >= 8 ? '✓' : '•'}
+                    </span>
+                    <span>At least 8 characters <span className="font-arabic text-slate-500 text-[11px]">(8 أحرف على الأقل)</span></span>
+                  </li>
+                  <li className={`flex items-center gap-2 transition-colors ${/[A-Z]/.test(password) ? 'text-emerald-400 font-medium' : 'text-slate-400'}`}>
+                    <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${/[A-Z]/.test(password) ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-slate-800 text-slate-500'}`}>
+                      {/[A-Z]/.test(password) ? '✓' : '•'}
+                    </span>
+                    <span>At least 1 uppercase letter <span className="font-arabic text-slate-500 text-[11px]">(حرف كبير A-Z)</span></span>
+                  </li>
+                  <li className={`flex items-center gap-2 transition-colors ${/[0-9]/.test(password) ? 'text-emerald-400 font-medium' : 'text-slate-400'}`}>
+                    <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${/[0-9]/.test(password) ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-slate-800 text-slate-500'}`}>
+                      {/[0-9]/.test(password) ? '✓' : '•'}
+                    </span>
+                    <span>At least 1 number <span className="font-arabic text-slate-500 text-[11px]">(رقم 0-9)</span></span>
+                  </li>
+                </ul>
+              </div>
             </div>
             <button
               type="submit"

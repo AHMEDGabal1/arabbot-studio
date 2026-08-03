@@ -11,7 +11,7 @@ class GuardrailRule(Base):
     __tablename__ = "guardrail_rules"
 
     id = Column(Uuid, primary_key=True, default=uuid.uuid4)
-    bot_id = Column(Uuid, ForeignKey("bots.id"), nullable=False, index=True)
+    bot_id = Column(Uuid, ForeignKey("bots.id", ondelete="CASCADE"), nullable=False, index=True)
     # Rule types: forbidden_word, max_discount, required_phrase, regex_block, max_length
     rule_type = Column(String(30), nullable=False)
     value = Column(Text, nullable=False)

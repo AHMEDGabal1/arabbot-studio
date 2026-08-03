@@ -26,9 +26,20 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+let isRefreshing = false;
+let failedQueue: Array<{ resolve: (value: string) => void; reject: (reason?: unknown) => void }> = [];
+
+const processQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach(prom => {
+    if (token) prom.resolve(token);
+    else prom.reject(error);
+  });
+  failedQueue = [];
+};
+
 api.interceptors.response.use(
   (res) => res,
-  (err) => {
+  async (err) => {
     if (!err.response) {
       // Network error (offline, timeout, DNS failure)
       console.error('Network error:', err.message);
@@ -37,9 +48,39 @@ api.interceptors.response.use(
       return Promise.reject(networkError);
     }
     if (err.response?.status === 401 && !window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/register')) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('refresh_token');
-      window.location.href = '/login';
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (refreshToken && !isRefreshing) {
+        isRefreshing = true;
+        try {
+          const { data } = await axios.post(`${API_BASE}/api/v1/auth/refresh`, { refresh_token: refreshToken });
+          localStorage.setItem('token', data.access_token);
+          if (data.refresh_token) localStorage.setItem('refresh_token', data.refresh_token);
+          isRefreshing = false;
+          processQueue(null, data.access_token);
+          // Retry original request
+          err.config.headers['Authorization'] = `Bearer ${data.access_token}`;
+          return api(err.config);
+        } catch (refreshErr) {
+          isRefreshing = false;
+          processQueue(refreshErr, null);
+          localStorage.removeItem('token');
+          localStorage.removeItem('refresh_token');
+          window.location.href = '/login';
+          return Promise.reject(refreshErr);
+        }
+      } else if (isRefreshing) {
+        // Queue the request while refresh is in progress
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then(token => {
+          err.config.headers['Authorization'] = `Bearer ${token}`;
+          return api(err.config);
+        });
+      } else {
+        localStorage.removeItem('token');
+        localStorage.removeItem('refresh_token');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(err);
   },

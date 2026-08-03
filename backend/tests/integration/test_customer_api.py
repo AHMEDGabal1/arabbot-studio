@@ -6,12 +6,12 @@ from src.services.customer_profile_service import get_or_create_profile
 async def auth_client(client):
     await client.post("/api/v1/auth/register", json={
         "email": "customer_user@example.com",
-        "password": "testpass123",
+        "password": "Testpass123",
         "name": "Customer User",
     })
     resp = await client.post("/api/v1/auth/login", json={
         "email": "customer_user@example.com",
-        "password": "testpass123",
+        "password": "Testpass123",
     })
     token = resp.json()["access_token"]
     client.headers["Authorization"] = f"Bearer {token}"

@@ -20,21 +20,30 @@ except Exception:
 
 async def _check_redis(key: str, max_requests: int, window_seconds: int) -> bool | None:
     """Returns True if over limit, False if under limit, None if Redis unavailable.
-    IMPORTANT: Returning None (not False) for unavailable Redis is what tells
-    the caller to fall back to local rate limiting."""
+
+    IMPORTANT: Returning None (not False) for unavailable Redis tells the caller
+    to fall back to local rate limiting. This prevents distributed rate limiting
+    from being completely bypassed when Redis is down.
+    """
     if _redis is None:
         return None
     try:
         pipe = _redis.pipeline()
         now = math.ceil(time.time())
         window_start = now - window_seconds
+        # Clean expired entries
         await pipe.zremrangebyscore(key, 0, window_start)
+        # Add current request timestamp
         await pipe.zadd(key, {f"{now}:{uuid.uuid4()}": now})
-        await pipe.expire(key, window_seconds)
+        # Set expiration to prevent memory leaks
+        await pipe.expire(key, window_seconds + 60)
+        # Count total requests in window
         await pipe.zcard(key)
         results = await pipe.execute()
+        # Check if request count exceeds limit
         return results[3] > max_requests
     except Exception:
+        # Redis unavailable - fall back to local rate limiting
         return None
 
 
@@ -42,7 +51,11 @@ def rate_limit(max_requests: int = 10, window_seconds: int = 60, key_prefix: str
     async def _check(request: Request):
         if settings.environment == "test":
             return
-        client_host = request.client.host if request.client else "unknown"
+        forwarded = request.headers.get("X-Forwarded-For")
+        if forwarded:
+            client_host = forwarded.split(",")[0].strip()
+        else:
+            client_host = request.client.host if request.client else "unknown"
         key = f"rl:{key_prefix}{client_host}:{request.url.path}"
         redis_result = await _check_redis(key, max_requests, window_seconds)
         if redis_result is True:

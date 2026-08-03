@@ -11,7 +11,7 @@ class CustomerProfile(Base):
     __tablename__ = "customer_profiles"
 
     id = Column(Uuid, primary_key=True, default=uuid.uuid4)
-    workspace_id = Column(Uuid, ForeignKey("workspaces.id"), nullable=False, index=True)
+    workspace_id = Column(Uuid, ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True)
     channel = Column(String(20), nullable=False)
     channel_user_id = Column(Text, nullable=False)
     display_name = Column(Text, nullable=True)

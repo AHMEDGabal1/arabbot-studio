@@ -24,7 +24,7 @@ export default function Login() {
       await apiLogin(email, password);
       await refresh();
       navigate('/dashboard');
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(extractErrorMessage(err));
     } finally {
       setLoading(false);

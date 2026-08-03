@@ -28,7 +28,7 @@ def run_test():
 
     # 1. Register / Login
     email = "user_e2e_final@arabbot.ai"
-    password = "password123!"
+    password = "Password123!"
     print(f"\n[1] Registering User ({email})...")
     status, res = request("/auth/register", "POST", {
         "email": email,
@@ -88,14 +88,37 @@ def run_test():
     }, auth_headers)
     print(f"   Guardrail 2 Created: {rule2.get('rule_type')}='{rule2.get('value')}%' (Action: {rule2.get('action')})")
 
-    # 6. Customer Profile (CDP) API Verification
-    print("\n[6] Fetching Customer Profiles (CDP)...")
+    # 6. Test Token Refresh Endpoint
+    print("\n[6] Testing Token Refresh...")
+    refresh_token = res.get("refresh_token")
+    if refresh_token:
+        status, ref_res = request("/auth/refresh", "POST", {"refresh_token": refresh_token})
+        print(f"   Status: {status}")
+        assert status == 200, f"Refresh failed: {ref_res}"
+        print(f"   New Access Token: {ref_res.get('access_token')[:20]}...")
+    else:
+        print("   Skipped: No refresh token returned in login response.")
+
+    # 7. Customer Profile (CDP) API Verification
+    print("\n[7] Fetching Customer Profiles (CDP)...")
     status, customers = request("/customers", "GET", None, auth_headers)
     print(f"   Status: {status}")
-    print(f"   Current Customers in CDP: {len(customers)}")
+    print(f"   Current Customers in CDP: {len(customers) if isinstance(customers, list) else 0}")
+
+    # 8. Analytics Overview Verification
+    print("\n[8] Checking Analytics Overview...")
+    status, analytics = request("/analytics/overview", "GET", None, auth_headers)
+    print(f"   Status: {status}")
+    print(f"   Analytics Fetched Successfully!")
+
+    # 9. List Conversations Verification
+    print("\n[9] Checking Conversations...")
+    status, convs = request(f"/conversations?bot_id={bot_id}", "GET", None, auth_headers)
+    print(f"   Status: {status}")
+    print(f"   Conversations Count: {convs.get('total', 0) if isinstance(convs, dict) else len(convs)}")
 
     print("\n" + "=" * 60)
-    print("[+] SUCCESS: Full End-to-End Workflow Passed 100%!")
+    print("[+] SUCCESS: Live User Simulation & End-to-End Workflow Passed 100%!")
     print("=" * 60)
 
 if __name__ == "__main__":

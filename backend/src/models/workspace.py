@@ -26,8 +26,8 @@ class Workspace(Base):
 class WorkspaceMember(Base):
     __tablename__ = "workspace_members"
 
-    workspace_id = Column(Uuid, ForeignKey("workspaces.id"), primary_key=True)
-    user_id = Column(Uuid, ForeignKey("users.id"), primary_key=True)
+    workspace_id = Column(Uuid, ForeignKey("workspaces.id", ondelete="CASCADE"), primary_key=True)
+    user_id = Column(Uuid, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     role = Column(String(20), default="member")
 
     workspace = relationship("Workspace", back_populates="members")

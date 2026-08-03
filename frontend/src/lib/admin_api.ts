@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const api = axios.create({ baseURL: '/api/v1/admin' });
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
+const api = axios.create({ baseURL: `${API_BASE}/api/v1/admin` });
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
@@ -11,9 +12,15 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401 || err.response?.status === 403) {
+    if (err.response?.status === 401) {
       if (!window.location.pathname.startsWith('/login')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('refresh_token');
         window.location.href = '/login';
+      }
+    } else if (err.response?.status === 403) {
+      if (!window.location.pathname.startsWith('/dashboard')) {
+        window.location.href = '/dashboard';
       }
     }
     return Promise.reject(err);

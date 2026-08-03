@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Any, Dict
@@ -12,7 +12,7 @@ from src.schemas.workspace import WorkspaceUpdate
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(get_current_superadmin)])
 
 @router.get("/analytics")
-async def get_platform_analytics(db: AsyncSession = Depends(get_db)):
+async def get_platform_analytics(db: AsyncSession = Depends(get_db)) -> dict[str, Any]:
     users_count = await db.scalar(select(func.count(User.id)))
     workspaces_count = await db.scalar(select(func.count(Workspace.id)))
     bots_count = await db.scalar(select(func.count(Bot.id)))
@@ -28,7 +28,7 @@ async def get_platform_analytics(db: AsyncSession = Depends(get_db)):
     }
 
 @router.get("/workspaces")
-async def list_workspaces(limit: int = 50, offset: int = 0, db: AsyncSession = Depends(get_db)):
+async def list_workspaces(limit: int = 50, offset: int = 0, db: AsyncSession = Depends(get_db)) -> dict[str, Any]:
     result = await db.execute(select(Workspace).order_by(Workspace.created_at.desc()).limit(limit).offset(offset))
     workspaces = result.scalars().all()
     
@@ -50,11 +50,11 @@ async def list_workspaces(limit: int = 50, offset: int = 0, db: AsyncSession = D
         "offset": offset
     }
 
-@router.patch("/workspaces/{workspace_id}")
+@router.patch("/workspaces/{workspace_id}", response_model=None)
 async def update_workspace(workspace_id: UUID, payload: WorkspaceUpdate, db: AsyncSession = Depends(get_db)):
     workspace = await db.get(Workspace, workspace_id)
     if not workspace:
-        raise HTTPException(status_code=404, detail="Workspace not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workspace not found")
 
     if payload.plan is not None:
         workspace.plan = payload.plan
@@ -66,7 +66,7 @@ async def update_workspace(workspace_id: UUID, payload: WorkspaceUpdate, db: Asy
     return workspace
 
 @router.get("/users")
-async def list_users(limit: int = 50, offset: int = 0, db: AsyncSession = Depends(get_db)):
+async def list_users(limit: int = 50, offset: int = 0, db: AsyncSession = Depends(get_db)) -> dict[str, Any]:
     result = await db.execute(select(User).order_by(User.created_at.desc()).limit(limit).offset(offset))
     users = result.scalars().all()
     total = await db.scalar(select(func.count(User.id)))

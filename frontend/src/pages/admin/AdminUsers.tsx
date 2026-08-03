@@ -5,24 +5,32 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import { extractErrorMessage } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
+interface User {
+  id: string;
+  email: string;
+  phone?: string;
+  is_superadmin: boolean;
+  created_at: string;
+}
+
 export default function AdminUsers() {
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const data = await listAllUsers();
+        setUsers(data);
+      } catch (err) {
+        toast.error(extractErrorMessage(err));
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadUsers();
   }, []);
-
-  const loadUsers = async () => {
-    try {
-      const data = await listAllUsers();
-      setUsers(data);
-    } catch (err) {
-      toast.error(extractErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) return <LoadingSpinner />;
 

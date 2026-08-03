@@ -39,21 +39,21 @@ export default function KnowledgeBase() {
   const [searchResult, setSearchResult] = useState<KnowledgeItem | null>(null);
   const [searching, setSearching] = useState(false);
 
-  const fetch = async () => {
-    if (!botId) return;
-    try {
-      const [b, i] = await Promise.all([getBot(botId), listKnowledge(botId)]);
-      setBot(b);
-      setItems(i);
-    } catch (e) {
-      console.error(e);
-      toast.error('Failed to load knowledge base items');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetch = async () => {
+      if (!botId) return;
+      try {
+        const [b, i] = await Promise.all([getBot(botId), listKnowledge(botId)]);
+        setBot(b);
+        setItems(i);
+      } catch (e: unknown) {
+        console.error(e);
+        toast.error('Failed to load knowledge base items');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetch();
   }, [botId]);
 
@@ -66,8 +66,10 @@ export default function KnowledgeBase() {
       toast.success('Knowledge item added successfully!');
       setForm({ type: 'faq', question: '', answer: '' });
       setShowForm(false);
-      await fetch();
-    } catch (err) {
+      const [b, i] = await Promise.all([getBot(botId), listKnowledge(botId)]);
+      setBot(b);
+      setItems(i);
+    } catch (err: unknown) {
       console.error('Failed to create knowledge item:', err);
       toast.error('Failed to save knowledge item.');
     } finally {
@@ -107,8 +109,10 @@ export default function KnowledgeBase() {
     try {
       await deleteKnowledge(botId, itemId);
       toast.success('Item deleted');
-      await fetch();
-    } catch (err) {
+      const [b, i] = await Promise.all([getBot(botId), listKnowledge(botId)]);
+      setBot(b);
+      setItems(i);
+    } catch (err: unknown) {
       console.error('Failed to delete knowledge item:', err);
       toast.error('Failed to delete item.');
     }

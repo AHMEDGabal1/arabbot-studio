@@ -15,18 +15,18 @@ export default function Conversations() {
 
   useEffect(() => {
     (async () => {
-      try { setBots(await listBots()); } catch (e) { console.error(e); } finally { setLoading(false); }
+      try { setBots(await listBots()); } catch (e: unknown) { console.error(e); } finally { setLoading(false); }
     })();
   }, []);
 
   useEffect(() => {
     if (!selectedBot) { setConversations([]); return; }
-    (async () => { try { setConversations(await listConversations(selectedBot)); } catch (e) { console.error(e); } })();
+    (async () => { try { setConversations(await listConversations(selectedBot)); } catch (e: unknown) { console.error(e); } })();
   }, [selectedBot]);
 
   useEffect(() => {
     if (!selectedConv) { setMessages([]); return; }
-    (async () => { try { setMessages(await getConversationMessages(selectedConv)); } catch (e) { console.error(e); } })();
+    (async () => { try { setMessages(await getConversationMessages(selectedConv)); } catch (e: unknown) { console.error(e); } })();
   }, [selectedConv]);
 
   if (loading) return (

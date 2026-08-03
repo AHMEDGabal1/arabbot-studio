@@ -11,7 +11,7 @@ class AgentConfig(Base):
     __tablename__ = "agent_configs"
 
     id = Column(Uuid, primary_key=True, default=uuid.uuid4)
-    bot_id = Column(Uuid, ForeignKey("bots.id"), nullable=False, index=True)
+    bot_id = Column(Uuid, ForeignKey("bots.id", ondelete="CASCADE"), nullable=False, index=True)
     # Agent specialization: sales, support, faq, complaints, default
     agent_type = Column(String(30), nullable=False)
     display_name = Column(String(100), nullable=False)

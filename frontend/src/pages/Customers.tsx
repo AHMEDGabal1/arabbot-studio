@@ -85,6 +85,7 @@ export default function Customers() {
   const [editTags, setEditTags] = useState<string[]>([]);
   const [newTagInput, setNewTagInput] = useState('');
 
+  // Fetch customers function (defined before useEffect to avoid hoisting issues)
   const fetchCustomers = async () => {
     try {
       setLoading(true);
@@ -94,16 +95,18 @@ export default function Customers() {
 
       const data = await listCustomers(params);
       setCustomers(data);
-    } catch (e) {
-      console.error('Failed to fetch customers:', e);
+    } catch (err) {
+      console.error('Failed to fetch customers:', err);
       toast.error('Failed to load customer profiles');
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch when tagFilter changes
   useEffect(() => {
     fetchCustomers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tagFilter]);
 
   // Handle debounced search execution
@@ -112,6 +115,7 @@ export default function Customers() {
       fetchCustomers();
     }, 300);
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
   // Open Drawer and initialize edit form

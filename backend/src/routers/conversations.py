@@ -15,15 +15,18 @@ router = APIRouter(prefix="/conversations", tags=["conversations"])
 
 @router.get("", response_model=ConversationList)
 async def list_conversations(
-    bot_id: str | None = Query(None),
+    bot_id: uuid.UUID | None = Query(None, description="Filter by bot ID"),
     status: str | None = Query(None),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db),
 ):
+    # IMPORTANT: FastAPI validates UUID type in Query parameters, but malformed UUIDs
+    # will raise a validation error with 422 status, which is the correct behavior.
+    # This provides proper API-level validation before hitting business logic.
     items, total = await conversation_service.list_conversations(
-        db, str(workspace.id), bot_id, status, limit, offset,
+        db, str(workspace.id), str(bot_id) if bot_id else None, status, limit, offset,
     )
     return ConversationList(
         items=[ConversationRead.model_validate(c) for c in items],

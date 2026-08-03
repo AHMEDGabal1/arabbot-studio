@@ -87,7 +87,11 @@ async def login(
 
 
 @router.post("/refresh")
-async def refresh(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
+async def refresh(
+    body: RefreshRequest,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(rate_limit(5, 60)),
+):
     try:
         payload = jwt.decode(body.refresh_token, settings.secret_key, algorithms=[settings.jwt_algorithm])
         user_id = payload.get("sub")
@@ -111,7 +115,13 @@ async def refresh(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
 
     new_token = _create_token(user_id, workspace_id)
-    return TokenResponse(access_token=new_token, workspace_id=workspace_id, user_id=user_id)
+    new_refresh = _create_token(user_id, workspace_id, minutes=10080, token_type="refresh")
+    return TokenResponse(
+        access_token=new_token,
+        refresh_token=new_refresh,
+        workspace_id=workspace_id,
+        user_id=user_id,
+    )
 
 
 @router.get("/me", response_model=UserResponse)

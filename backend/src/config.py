@@ -11,6 +11,11 @@ class Settings(BaseSettings):
     database_url: str = "sqlite+aiosqlite:///./dev.db"
     redis_url: str = "redis://localhost:6379/0"
 
+    llm_provider: str = "tokenrouter"
+    tokenrouter_api_key: str = ""  # IMPORTANT: Must be set via TOKENROUTER_API_KEY env var. Never commit real keys.
+    tokenrouter_base_url: str = "https://api.tokenrouter.com/v1"
+    tokenrouter_model: str = "moonshotai/kimi-k3-free"
+
     google_api_key: str = ""
     gemini_model_fast: str = "gemini-2.0-flash-exp"
     gemini_model_full: str = "gemini-2.5-pro"
@@ -27,10 +32,11 @@ class Settings(BaseSettings):
     secret_key: str
     environment: str = "development"
     debug: bool = False
+    sql_echo: bool = False
     enable_handoff: bool = True
     enable_analytics: bool = True
     base_url: str = "http://localhost:8000"
-    cors_origins: str = "*"
+    cors_origins: str = "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://127.0.0.1:3000"
     ssl_certfile: str = ""
     ssl_keyfile: str = ""
 

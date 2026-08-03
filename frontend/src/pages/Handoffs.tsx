@@ -21,15 +21,15 @@ export default function Handoffs() {
     { sender: 'customer', text: 'سلام عليكم، محتاج اتكلم مع حد من خدمة العملاء ضرورى بخصوص الطلب!', time: '10:42 AM' },
   ]);
 
-  const fetch = async () => {
+  const fetchHandoffs = async () => {
     try {
       const list = await listHandoffs();
       setHandoffs(list);
       if (list.length > 0 && !activeHandoff) {
         setActiveHandoff(list[0]);
       }
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
       toast.error('Failed to fetch handoff queue');
     } finally {
       setLoading(false);
@@ -37,7 +37,7 @@ export default function Handoffs() {
   };
 
   useEffect(() => {
-    fetch();
+    fetchHandoffs();
   }, []);
 
   const resolve = async (id: string) => {
@@ -47,8 +47,8 @@ export default function Handoffs() {
       if (activeHandoff?.id === id) {
         setActiveHandoff(null);
       }
-      await fetch();
-    } catch (e) {
+      await fetchHandoffs();
+    } catch (err) {
       toast.error('Failed to resolve handoff');
     }
   };
@@ -57,8 +57,8 @@ export default function Handoffs() {
     try {
       await assignHandoff(id, 'agent');
       toast.success('Conversation claimed!');
-      await fetch();
-    } catch (e) {
+      await fetchHandoffs();
+    } catch (err) {
       toast.error('Failed to claim conversation');
     }
   };

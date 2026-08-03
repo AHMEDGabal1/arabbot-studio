@@ -11,7 +11,7 @@ class Bot(Base):
     __tablename__ = "bots"
 
     id = Column(Uuid, primary_key=True, default=uuid.uuid4)
-    workspace_id = Column(Uuid, ForeignKey("workspaces.id"), nullable=False, index=True)
+    workspace_id = Column(Uuid, ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True)
     name = Column(String(100), nullable=False)
     language = Column(String(10), default="ar-EG")
     channel = Column(String(20), nullable=False)

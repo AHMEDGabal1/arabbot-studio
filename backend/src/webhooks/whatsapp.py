@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import hashlib
 import hmac
 import json
@@ -22,10 +23,42 @@ from src.services.wa_sender_service import send_wa_message
 
 logger = logging.getLogger(__name__)
 
+# In-memory message dedup with TTL. Keys: msg_id, Values: timestamp
+# IMPORTANT: Only works for single-process deployments. Use Redis SET NX for multi-process.
+_msg_dedup: OrderedDict[str, float] = OrderedDict()
+_DEDUP_TTL = 86400  # 24 hours
+_DEDUP_MAX = 10000
+
+
+def _is_duplicate(msg_id: str) -> bool:
+    """Check if message was already processed. Evicts expired entries."""
+    now = time.time()
+    # Evict expired entries
+    while _msg_dedup:
+        oldest_key, oldest_time = next(iter(_msg_dedup.items()))
+        if now - oldest_time > _DEDUP_TTL:
+            _msg_dedup.pop(oldest_key)
+        else:
+            break
+    if msg_id in _msg_dedup:
+        return True
+    # Evict if at capacity
+    if len(_msg_dedup) >= _DEDUP_MAX:
+        _msg_dedup.popitem(last=False)
+    _msg_dedup[msg_id] = now
+    return False
+
 router = APIRouter(prefix="/webhooks/whatsapp", tags=["webhooks"])
 
 
 def verify_signature(payload: bytes, signature: str, secret: str) -> bool:
+    # IMPORTANT: Reject empty or whitespace-only secrets to prevent signature spoofing.
+    # An attacker could pass an empty X-Hub-Signature-256 header and it would match
+    # the HMAC computed with an empty secret.
+    if not secret or not secret.strip():
+        return False
+    if not signature or not signature.strip():
+        return False
     expected = hmac.new(secret.encode(), payload, hashlib.sha256).hexdigest()
     return hmac.compare_digest(f"sha256={expected}", signature)
 
@@ -102,7 +135,27 @@ async def process_incoming(bot: Bot, msg: dict):
                 if ws.last_message_month is None or month_key != ws.last_message_month:
                     ws.messages_used_this_month = 0
                     ws.last_message_month = month_key
-                ws.messages_used_this_month = (ws.messages_used_this_month or 0) + 1
+
+                # IMPORTANT: Enforce monthly message quota limits before processing.
+                # Without this check, workspaces can exceed their plan limits indefinitely.
+                current_usage = ws.messages_used_this_month or 0
+                if current_usage >= ws.monthly_message_limit:
+                    await db.commit()
+                    logger.warning(
+                        "Monthly quota exceeded",
+                        extra={
+                            "workspace_id": str(ws.id),
+                            "usage": current_usage,
+                            "limit": ws.monthly_message_limit,
+                        }
+                    )
+                    # Send quota exceeded message to user
+                    if bot.wa_phone_number_id and bot.wa_access_token:
+                        quota_msg = "Your monthly message quota has been reached. Please upgrade your plan to continue."
+                        await send_wa_message(channel_user_id, quota_msg, bot.wa_phone_number_id, bot.wa_access_token)
+                    return
+
+                ws.messages_used_this_month = current_usage + 1
 
             customer_ctx = await customer_profile_service.get_profile_context(
                 db, str(bot.workspace_id), "whatsapp", channel_user_id
@@ -128,16 +181,17 @@ async def process_incoming(bot: Bot, msg: dict):
                 db, str(conversation.id), "assistant", result["response"],
             )
 
-            if bot.wa_phone_number_id and bot.wa_access_token:
-                await send_wa_message(channel_user_id, result["response"], bot.wa_phone_number_id, bot.wa_access_token)
-
             if result["requires_human"] and bot.human_handoff_enabled:
                 await handoff_service.create_handoff(
                     db, str(conversation.id), reason=f"Intent: {result['intent']}",
                 )
                 conversation.status = "handed_off"
 
+            # IMPORTANT: Commit DB state before external API call to prevent data loss on send failure
             await db.commit()
+
+            if bot.wa_phone_number_id and bot.wa_access_token:
+                await send_wa_message(channel_user_id, result["response"], bot.wa_phone_number_id, bot.wa_access_token)
 
             logger.info(
                 "msg_processed",
@@ -188,6 +242,9 @@ async def receive_webhook(
     messages = extract_messages(payload)
 
     for msg in messages:
+        msg_id = msg.get("id")
+        if msg_id and _is_duplicate(msg_id):
+            continue
         background_tasks.add_task(process_incoming, bot, msg)
 
     return {"status": "ok"}

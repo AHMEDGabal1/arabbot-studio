@@ -57,15 +57,16 @@ if settings.sentry_dsn:
         integrations=[FastApiIntegration()],
     )
 
-origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()] if settings.cors_origins and settings.cors_origins != "*" else ["*"]
+origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip() and o.strip() != "*"]
+if not origins and settings.environment == "development":
+    origins = ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "http://127.0.0.1:3000"]
 
 from src.database import Base, engine
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await ensure_buckets()
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    # IMPORTANT: Schema managed by Alembic. Run 'alembic upgrade head' before starting.
     yield
 
 
@@ -92,9 +93,17 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    # IMPORTANT: Pydantic v2 field_validator errors include ValueError objects in ctx
+    # that aren't JSON serializable. Convert them to safe string representations.
+    safe_errors = []
+    for err in exc.errors():
+        safe_err = {k: v for k, v in err.items() if k != "ctx"}
+        if "ctx" in err:
+            safe_err["ctx"] = {k: str(v) for k, v in err["ctx"].items()}
+        safe_errors.append(safe_err)
     return JSONResponse(
         status_code=422,
-        content={"error": {"code": "VALIDATION_ERROR", "message": "Invalid request data", "details": {"errors": exc.errors()}}},
+        content={"error": {"code": "VALIDATION_ERROR", "message": "Invalid request data", "details": {"errors": safe_errors}}},
     )
 
 
@@ -102,8 +111,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-Workspace-ID", "X-Request-ID"],
 )
 
 
@@ -116,6 +125,8 @@ async def add_request_id(request: Request, call_next):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Content-Security-Policy"] = "default-src 'self'"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     return response
 
 

@@ -79,7 +79,7 @@ export default function BotEditor() {
             fallback_message: bot.fallback_message || '',
             human_handoff_enabled: bot.human_handoff_enabled,
           });
-        } catch (e) {
+        } catch (e: unknown) {
           console.error(e);
           toast.error('Failed to load bot details');
         } finally {
@@ -103,14 +103,18 @@ export default function BotEditor() {
         toast.success('Bot updated successfully!');
         navigate('/bots');
       }
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to save bot settings');
+    } catch (err: unknown) {
+      const errorMsg = err && typeof err === 'object' && 'response' in err &&
+        typeof (err as { response?: { data?: { detail?: string } } }).response?.data?.detail === 'string'
+        ? (err as { response: { data: { detail: string } } }).response.data.detail
+        : 'Failed to save bot settings';
+      setError(errorMsg);
     } finally {
       setSaving(false);
     }
   };
 
-  const set = (key: keyof BotCreate, value: any) => setForm((f) => ({ ...f, [key]: value }));
+  const set = (key: keyof BotCreate, value: string | boolean) => setForm((f) => ({ ...f, [key]: value }));
 
   const applyPreset = (preset: typeof dialectPresets[0]) => {
     setForm((f) => ({

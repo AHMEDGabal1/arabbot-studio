@@ -1,4 +1,5 @@
 import uuid
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, select
@@ -15,7 +16,7 @@ router = APIRouter(prefix="/analytics", tags=["analytics"])
 async def analytics_overview(
     workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     bots_result = await db.execute(
         select(func.count(Bot.id)).where(
             Bot.workspace_id == workspace.id,
@@ -77,7 +78,7 @@ async def bot_analytics(
     bot_id: uuid.UUID,
     workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     result = await db.execute(
         select(Bot).where(
             Bot.id == bot_id,

@@ -5,12 +5,12 @@ import pytest
 async def auth_client(client):
     await client.post("/api/v1/auth/register", json={
         "email": "agent_user@example.com",
-        "password": "testpass123",
+        "password": "Testpass123",
         "name": "Agent User",
     })
     resp = await client.post("/api/v1/auth/login", json={
         "email": "agent_user@example.com",
-        "password": "testpass123",
+        "password": "Testpass123",
     })
     token = resp.json()["access_token"]
     client.headers["Authorization"] = f"Bearer {token}"

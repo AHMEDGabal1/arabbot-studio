@@ -9,12 +9,12 @@ async def auth_handoff(client, db_session: AsyncSession):
     """Register user, create bot, create conversation + handoff via service layer."""
     await client.post("/api/v1/auth/register", json={
         "email": "handoffuser@example.com",
-        "password": "testpass123",
+        "password": "Testpass123",
         "name": "Handoff User",
     })
     resp = await client.post("/api/v1/auth/login", json={
         "email": "handoffuser@example.com",
-        "password": "testpass123",
+        "password": "Testpass123",
     })
     data = resp.json()
     token = data["access_token"]
@@ -54,12 +54,12 @@ async def test_handoff_flow(client):
     """Test listing handoffs returns empty list for new user."""
     await client.post("/api/v1/auth/register", json={
         "email": "handoffuser@example.com",
-        "password": "testpass123",
+        "password": "Testpass123",
         "name": "Handoff User",
     })
     resp = await client.post("/api/v1/auth/login", json={
         "email": "handoffuser@example.com",
-        "password": "testpass123",
+        "password": "Testpass123",
     })
     token = resp.json()["access_token"]
     client.headers["Authorization"] = f"Bearer {token}"
@@ -115,12 +115,12 @@ async def test_assign_nonexistent_handoff(client):
     """Test assigning a handoff that doesn't exist returns 404."""
     await client.post("/api/v1/auth/register", json={
         "email": "handoff404@example.com",
-        "password": "testpass123",
+        "password": "Testpass123",
         "name": "404 User",
     })
     resp = await client.post("/api/v1/auth/login", json={
         "email": "handoff404@example.com",
-        "password": "testpass123",
+        "password": "Testpass123",
     })
     token = resp.json()["access_token"]
     client.headers["Authorization"] = f"Bearer {token}"

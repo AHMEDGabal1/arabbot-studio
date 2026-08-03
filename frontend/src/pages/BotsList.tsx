@@ -11,18 +11,20 @@ export default function BotsList() {
   const [bots, setBots] = useState<BotType[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetch = async () => {
-    try { setBots(await listBots()); } catch (e) { console.error(e); toast.error('Failed to load bots'); } finally { setLoading(false); }
-  };
-
-  useEffect(() => { fetch(); }, []);
+  useEffect(() => {
+    const fetch = async () => {
+      try { setBots(await listBots()); } catch (e: unknown) { console.error(e); toast.error('Failed to load bots'); } finally { setLoading(false); }
+    };
+    fetch();
+  }, []);
 
   const toggle = async (bot: BotType) => {
     try {
       if (bot.is_active) await deactivateBot(bot.id);
       else await activateBot(bot.id);
-      await fetch();
-    } catch (e) {
+      const data = await listBots();
+      setBots(data);
+    } catch (e: unknown) {
       console.error('Failed to toggle bot:', e);
       toast.error('Failed to update bot status');
     }
@@ -32,8 +34,9 @@ export default function BotsList() {
     if (!confirm('Delete this bot?')) return;
     try {
       await deleteBot(id);
-      await fetch();
-    } catch (e) {
+      const data = await listBots();
+      setBots(data);
+    } catch (e: unknown) {
       console.error('Failed to delete bot:', e);
       toast.error('Failed to delete bot');
     }

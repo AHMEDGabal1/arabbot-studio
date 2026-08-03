@@ -5,24 +5,32 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import { extractErrorMessage } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
+interface Workspace {
+  id: string;
+  name: string;
+  plan: string;
+  messages_used_this_month: number;
+  monthly_message_limit: number;
+}
+
 export default function AdminWorkspaces() {
-  const [workspaces, setWorkspaces] = useState<any[]>([]);
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const loadWorkspaces = async () => {
+      try {
+        const data = await listAllWorkspaces();
+        setWorkspaces(data);
+      } catch (err) {
+        toast.error(extractErrorMessage(err));
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadWorkspaces();
   }, []);
-
-  const loadWorkspaces = async () => {
-    try {
-      const data = await listAllWorkspaces();
-      setWorkspaces(data);
-    } catch (err) {
-      toast.error(extractErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleUpdateLimit = async (id: string, currentLimit: number) => {
     const limit = prompt('Enter new monthly message limit:', currentLimit.toString());
@@ -30,7 +38,9 @@ export default function AdminWorkspaces() {
     try {
       await updateWorkspacePlan(id, 'pro', parseInt(limit, 10));
       toast.success('Workspace updated successfully');
-      loadWorkspaces();
+      // Reload workspaces
+      const data = await listAllWorkspaces();
+      setWorkspaces(data);
     } catch (err) {
       toast.error(extractErrorMessage(err));
     }

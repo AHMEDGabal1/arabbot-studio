@@ -26,10 +26,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const u = await getMe();
       setUser(u);
-    } catch {
-      localStorage.removeItem('token');
-      localStorage.removeItem('refresh_token');
-      setUser(null);
+    } catch (err: unknown) {
+      // Only clear tokens on explicit 401 (unauthorized), not on transient network errors
+      if (err && typeof err === 'object' && 'response' in err) {
+        const error = err as { response?: { status?: number } };
+        if (error?.response?.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('refresh_token');
+          setUser(null);
+        }
+      }
+      // On network errors, keep tokens and let user retry
     } finally {
       setLoading(false);
     }
@@ -45,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

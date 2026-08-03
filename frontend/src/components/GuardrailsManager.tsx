@@ -173,22 +173,22 @@ export default function GuardrailsManager({ botId }: Props) {
     is_active: true,
   });
 
-  const fetchRules = async () => {
-    try {
-      setLoading(true);
-      const data = await listGuardrails(botId);
-      // Sort by priority ascending
-      const sorted = Array.isArray(data) ? [...data].sort((a, b) => a.priority - b.priority) : [];
-      setRules(sorted);
-    } catch (err: any) {
-      console.error(err);
-      toast.error('Failed to load safety guardrails');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchRules = async () => {
+      try {
+        setLoading(true);
+        const data = await listGuardrails(botId);
+        // Sort by priority ascending
+        const sorted = Array.isArray(data) ? [...data].sort((a, b) => a.priority - b.priority) : [];
+        setRules(sorted);
+      } catch (err: unknown) {
+        console.error(err);
+        toast.error('Failed to load safety guardrails');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (botId) {
       fetchRules();
     }
@@ -247,9 +247,13 @@ export default function GuardrailsManager({ botId }: Props) {
       }
       setIsModalOpen(false);
       await fetchRules();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.response?.data?.detail || 'Failed to save guardrail rule');
+      const errorMsg = err && typeof err === 'object' && 'response' in err &&
+        typeof (err as { response?: { data?: { detail?: string } } }).response?.data?.detail === 'string'
+        ? (err as { response: { data: { detail: string } } }).response.data.detail
+        : 'Failed to save guardrail rule';
+      toast.error(errorMsg);
     } finally {
       setSaving(false);
     }
@@ -264,10 +268,9 @@ export default function GuardrailsManager({ botId }: Props) {
       );
       await updateGuardrail(botId, rule.id, { is_active: updatedStatus });
       toast.success(updatedStatus ? 'Rule activated' : 'Rule deactivated');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       toast.error('Failed to update rule status');
-      await fetchRules();
     }
   };
 
@@ -277,7 +280,7 @@ export default function GuardrailsManager({ botId }: Props) {
       await deleteGuardrail(botId, ruleId);
       toast.success('Guardrail rule deleted');
       setRules((prev) => prev.filter((r) => r.id !== ruleId));
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       toast.error('Failed to delete guardrail rule');
     } finally {
@@ -291,9 +294,13 @@ export default function GuardrailsManager({ botId }: Props) {
       await createGuardrail(botId, preset.data);
       toast.success(`Preset "${preset.name}" applied successfully!`);
       await fetchRules();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.response?.data?.detail || 'Failed to apply preset');
+      const errorMsg = err && typeof err === 'object' && 'response' in err &&
+        typeof (err as { response?: { data?: { detail?: string } } }).response?.data?.detail === 'string'
+        ? (err as { response: { data: { detail: string } } }).response.data.detail
+        : 'Failed to apply preset';
+      toast.error(errorMsg);
     } finally {
       setPresetLoading(null);
     }
@@ -590,7 +597,7 @@ export default function GuardrailsManager({ botId }: Props) {
                         <button
                           key={type.value}
                           type="button"
-                          onClick={() => setFormData((f) => ({ ...f, rule_type: type.value as any }))}
+                          onClick={() => setFormData((f) => ({ ...f, rule_type: type.value as 'forbidden_word' | 'max_discount' | 'required_phrase' | 'regex_block' | 'max_length' }))}
                           className={`w-full p-3 rounded-2xl border text-left flex items-start gap-3 transition-all ${
                             isSelected
                               ? 'bg-terracotta-50/50 border-terracotta-300 ring-1 ring-terracotta-400'
@@ -653,7 +660,7 @@ export default function GuardrailsManager({ botId }: Props) {
                         <button
                           key={action.value}
                           type="button"
-                          onClick={() => setFormData((f) => ({ ...f, action: action.value as any }))}
+                          onClick={() => setFormData((f) => ({ ...f, action: action.value as 'block' | 'replace' | 'flag' | 'escalate' }))}
                           className={`p-3 rounded-2xl border text-left transition-all ${
                             isSelected
                               ? 'bg-navy-900 text-white border-navy-900 shadow-sm'

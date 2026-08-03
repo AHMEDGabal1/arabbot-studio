@@ -67,20 +67,20 @@ export default function SpecialistAgentsManager({ botId }: Props) {
     is_active: true,
   });
 
-  const fetchAgents = async () => {
-    try {
-      setLoading(true);
-      const data = await listAgents(botId);
-      setAgents(data);
-    } catch (err: any) {
-      console.error(err);
-      toast.error('Failed to load specialist agents');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchAgents = async () => {
+      try {
+        setLoading(true);
+        const data = await listAgents(botId);
+        setAgents(data);
+      } catch (err: unknown) {
+        console.error(err);
+        toast.error('Failed to load specialist agents');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (botId) {
       fetchAgents();
     }
@@ -91,10 +91,15 @@ export default function SpecialistAgentsManager({ botId }: Props) {
       setSeeding(true);
       const seeded = await seedDefaultAgents(botId);
       toast.success(`Seeded ${seeded.length} default Egyptian agents!`);
-      await fetchAgents();
-    } catch (err: any) {
+      const data = await listAgents(botId);
+      setAgents(data);
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.response?.data?.detail || 'Failed to seed default agents');
+      const errorMsg = err && typeof err === 'object' && 'response' in err &&
+        typeof (err as { response?: { data?: { detail?: string } } }).response?.data?.detail === 'string'
+        ? (err as { response: { data: { detail: string } } }).response.data.detail
+        : 'Failed to seed default agents';
+      toast.error(errorMsg);
     } finally {
       setSeeding(false);
     }
@@ -150,7 +155,7 @@ export default function SpecialistAgentsManager({ botId }: Props) {
     try {
       await updateAgentConfig(botId, agent.id, { is_active: updatedStatus });
       toast.success(`${agent.display_name} ${updatedStatus ? 'activated' : 'deactivated'}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       toast.error('Failed to update agent status');
       // Revert optimism
@@ -167,7 +172,7 @@ export default function SpecialistAgentsManager({ botId }: Props) {
       await deleteAgentConfig(botId, agentId);
       toast.success('Agent deleted successfully');
       setAgents((prev) => prev.filter((a) => a.id !== agentId));
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       toast.error('Failed to delete agent');
     } finally {
@@ -208,9 +213,13 @@ export default function SpecialistAgentsManager({ botId }: Props) {
         setAgents((prev) => [...prev, created]);
       }
       setIsModalOpen(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.response?.data?.detail || 'Failed to save agent configuration');
+      const errorMsg = err && typeof err === 'object' && 'response' in err &&
+        typeof (err as { response?: { data?: { detail?: string } } }).response?.data?.detail === 'string'
+        ? (err as { response: { data: { detail: string } } }).response.data.detail
+        : 'Failed to save agent configuration';
+      toast.error(errorMsg);
     } finally {
       setSaving(false);
     }
@@ -552,6 +561,7 @@ export default function SpecialistAgentsManager({ botId }: Props) {
                       className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
                     >
                       <option value="gemini">Google Gemini</option>
+                      <option value="tokenrouter">TokenRouter / Kimi</option>
                       <option value="openai">OpenAI</option>
                       <option value="anthropic">Anthropic</option>
                     </select>

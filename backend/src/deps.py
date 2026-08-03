@@ -72,17 +72,10 @@ async def get_current_workspace(
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not a member of this workspace")
         return membership.workspace
 
-    # Fallback: no workspace_id in request state — return the user's first workspace.
-    result = await db.execute(
-        select(WorkspaceMember)
-        .where(WorkspaceMember.user_id == user.id)
-        .options(selectinload(WorkspaceMember.workspace))
-        .limit(1)
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Workspace context required. Provide X-Workspace-ID header."
     )
-    membership = result.scalar_one_or_none()
-    if membership is None:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No workspace found")
-    return membership.workspace
 
 
 async def get_current_superadmin(
