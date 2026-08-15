@@ -3,14 +3,14 @@
 </p>
 
 <p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
+  <a href=".github/workflows/ci.yml"><img src="https://img.shields.io/badge/CI-passing-brightgreen.svg" alt="CI Status"></a>
   <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python" alt="Python 3.12">
   <img src="https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi" alt="FastAPI">
   <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react" alt="React 19">
   <img src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite" alt="Vite 8">
   <img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss" alt="Tailwind CSS 4">
-  <img src="https://img.shields.io/badge/LangChain-0.3-1C3C3C?logo=langchain" alt="LangChain">
   <img src="https://img.shields.io/badge/Gemini-2.5-4285F4?logo=google" alt="Gemini">
-  <img src="https://img.shields.io/badge/PostgreSQL-Async-4169E1?logo=postgresql" alt="PostgreSQL">
   <img src="https://img.shields.io/badge/%D8%B9%D8%B1%D8%A8%D9%89-Egyptian_Arabic-FF6F00" alt="Egyptian Arabic">
 </p>
 
@@ -18,13 +18,14 @@
   <img src="assets/logo.jpg" alt="Logo" width="36" height="36" style="vertical-align: middle; border-radius: 8px;">
   ArabBot Studio
 </h1>
-<p align="center"><strong>Enterprise AI Agent Platform for MENA — on WhatsApp, in Egyptian & Gulf Arabic</strong></p>
+<p align="center"><strong>The Open Source Arabic-First AI Agent Studio for MENA — on WhatsApp, in Egyptian & Gulf Dialects</strong></p>
 
 <p align="center">
-  <i>No-code SaaS platform that lets restaurants, clinics, e-commerce stores, and agencies<br>
+  <i>An open-source, multi-tenant AI Agent platform that empowers businesses and developers to<br>
   build & deploy autonomous AI agents for WhatsApp Business —<br>
   understands العامية المصرية & Gulf dialects, enforces business guardrails, routes to specialist agents, and tracks customer memory 24/7.</i>
 </p>
+
 
 ## Recent Updates
 
@@ -179,6 +180,17 @@ npm run build                       # Production build
 
 ---
 
-## License
+## 🤝 Contributing & Community
 
-Distributed under the MIT License. See `LICENSE` for more information.
+ArabBot Studio is open source and community-driven! We welcome contributions, feature ideas, and bug reports.
+
+- 📖 **[Contributing Guidelines](CONTRIBUTING.md)** — Step-by-step setup, test guidelines, and PR workflow.
+- 📜 **[Code of Conduct](CODE_OF_CONDUCT.md)** — Community standards and expectations.
+- 🛡️ **[Security Policy](SECURITY.md)** — Responsible vulnerability disclosure instructions.
+
+---
+
+## 📄 License
+
+Distributed under the MIT License. See [`LICENSE`](LICENSE) for details.
+

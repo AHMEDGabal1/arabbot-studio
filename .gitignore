@@ -1,17 +1,43 @@
+# Python
 __pycache__/
 *.py[cod]
+*$py.class
 *.egg-info/
-.env
-venv/
 .venv/
+venv/
+ENV/
+.pytest_cache/
 *.db
 *.sqlite3
+
+# Node & Frontend
 node_modules/
+dist/
+build/
 .opencode/node_modules/
-.pytest_cache/
 .opencode/package-lock.json
+
+# Environment & Credentials
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
 certs/
+
+# Logs & Data
+*.log
 logs/
+backend/logs/
 backend/data/
 frontend-vite-err.log
 frontend-vite.log
+test.db
+
+# IDE & System
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+nul
+
